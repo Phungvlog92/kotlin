@@ -309,6 +309,7 @@ class ExportModelGenerator(val context: JsIrBackendContext, val generateNamespac
             val candidate = getExportCandidate(declaration) ?: continue
             if (isImplicitlyExportedClass && candidate !is IrClass) continue
             if (!shouldDeclarationBeExportedImplicitlyOrExplicitly(candidate, context)) continue
+            if (candidate.isFakeOverride && candidate.parentAsClass.isInterface && candidate.parentAsClass.isInterface) continue
 
             val processingResult = specialProcessing(candidate)
             if (processingResult != null) {
@@ -604,6 +605,8 @@ class ExportModelGenerator(val context: JsIrBackendContext, val generateNamespac
                 val isImplicitlyExported = !isExported && !klass.isExternal
                 val isNonExportedExternal = klass.isExternal && !isExported
                 val name = klass.getFqNameWithJsNameWhenAvailable(!isNonExportedExternal && generateNamespacesForPackages).asString()
+                // TODO: find another solution for this case (maybe annotation)
+                val qualifiedName = if (isNonExportedExternal) "globalThis.${name}" else name
 
                 val exportedSupertype = runIf(shouldCalculateExportedSupertypeForImplicit && isImplicitlyExported) {
                     val transitiveExportedType = nonNullType.collectSuperTransitiveHierarchy()
@@ -614,15 +617,15 @@ class ExportModelGenerator(val context: JsIrBackendContext, val generateNamespac
                 when (klass.kind) {
                     ClassKind.ANNOTATION_CLASS,
                     ClassKind.ENUM_ENTRY ->
-                        ExportedType.ErrorType("Class $name with kind: ${klass.kind}")
+                        ExportedType.ErrorType("Class $qualifiedName with kind: ${klass.kind}")
 
                     ClassKind.OBJECT ->
-                        ExportedType.TypeOf(name)
+                        ExportedType.TypeOf(qualifiedName)
 
                     ClassKind.CLASS,
                     ClassKind.ENUM_CLASS,
                     ClassKind.INTERFACE -> ExportedType.ClassType(
-                        name,
+                        qualifiedName,
                         type.arguments.memoryOptimizedMap { exportTypeArgument(it) },
                         klass
                     )
