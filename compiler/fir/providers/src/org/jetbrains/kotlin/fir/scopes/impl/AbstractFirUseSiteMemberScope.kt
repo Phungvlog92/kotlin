@@ -23,8 +23,14 @@ abstract class AbstractFirUseSiteMemberScope(
     dispatchReceiverType: ConeSimpleKotlinType,
     protected val declaredMemberScope: FirContainingNamesAwareScope
 ) : AbstractFirOverrideScope(session, overrideChecker) {
-    protected val supertypeScopeContext =
-        FirTypeIntersectionScopeContext(session, overrideChecker, superTypeScopes, dispatchReceiverType, forClassUseSiteScope = true)
+    protected val supertypeScopeContext = FirTypeIntersectionScopeContext(
+        session,
+        // The checker here is used for matching supertype intersections
+        // If we came here from platform (e.g. Java), we use a platform override checker
+        // Otherwise we should use special intersection checker (similar one is used in FirTypeIntersectionScope)
+        if (overrideChecker !is FirStandardOverrideChecker) overrideChecker else FirIntersectionScopeOverrideChecker(session),
+        superTypeScopes, dispatchReceiverType, forClassUseSiteScope = true
+    )
 
     private val functions: MutableMap<Name, Collection<FirNamedFunctionSymbol>> = hashMapOf()
 
