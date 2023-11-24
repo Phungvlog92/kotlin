@@ -39,9 +39,9 @@ import org.jetbrains.kotlin.gradle.plugin.cocoapods.asValidFrameworkName
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.jetbrains.kotlin.gradle.plugin.statistics.UsesBuildFusService
 import org.jetbrains.kotlin.gradle.report.*
-import org.jetbrains.kotlin.gradle.report.UsesBuildMetricsService
 import org.jetbrains.kotlin.gradle.targets.native.KonanPropertiesBuildService
 import org.jetbrains.kotlin.gradle.targets.native.tasks.*
+import org.jetbrains.kotlin.gradle.targets.native.toolchain.KotlinNativeProvider
 import org.jetbrains.kotlin.gradle.utils.*
 import org.jetbrains.kotlin.gradle.utils.GradleLoggerAdapter
 import org.jetbrains.kotlin.gradle.utils.listFilesOrEmpty
@@ -276,11 +276,6 @@ abstract class AbstractKotlinNativeCompile<
 
 }
 
-// Remove it once actual K2NativeCompilerArguments will be available without 'kotlin.native.enabled = true' flag
-class StubK2NativeCompilerArguments : CommonCompilerArguments() {
-    override fun copyOf(): Freezable = copyCommonCompilerArguments(this, StubK2NativeCompilerArguments())
-}
-
 /**
  * A task producing a klibrary from a compilation.
  */
@@ -336,11 +331,10 @@ internal constructor(
     @get:Internal // these sources are normally a subset of `source` ones which are already tracked
     val commonSources: ConfigurableFileCollection = project.files()
 
-    @get:Internal
-    val konanDataDir: Provider<String?> = project.provider { project.konanDataDir }
-
-    @get:Internal
-    val konanHome: Provider<String> = project.provider { project.konanHome }
+    @get:Nested
+    internal val kotlinNativeProvider: Provider<KotlinNativeProvider> = project.provider {
+        KotlinNativeProvider(project, konanTarget)
+    }
 
     @get:Nested
     override val multiplatformStructure: K2MultiplatformStructure = objectFactory.newInstance()
@@ -410,7 +404,11 @@ internal constructor(
     override val additionalCompilerOptions: Provider<Collection<String>>
         get() = compilerOptions.freeCompilerArgs as Provider<Collection<String>>
 
-    private val runnerSettings = KotlinNativeCompilerRunner.Settings.of(konanHome.get(), konanDataDir.getOrNull(), project)
+    private val runnerSettings = KotlinNativeCompilerRunner.Settings.of(
+        kotlinNativeProvider.get().konanHome.getFile().absolutePath,
+        kotlinNativeProvider.get().konanDataDir.getOrNull(),
+        project
+    )
     // endregion.
 
     @Suppress("DeprecatedCallableAddReplaceWith")
@@ -1077,13 +1075,16 @@ abstract class CInteropProcess @Inject internal constructor(params: Params) :
     val outputFile: File
         get() = outputFileProvider.get()
 
-    @get:Internal
-    val konanDataDir: Provider<String?> = project.provider { project.konanDataDir }
+    @get:Nested
+    internal val kotlinNativeProvider: Provider<KotlinNativeProvider> = project.provider {
+        KotlinNativeProvider(project, konanTarget)
+    }
 
-    @get:Internal
-    val konanHome: Provider<String> = project.provider { project.konanHome }
-
-    private val runnerSettings = KotlinNativeToolRunner.Settings.of(konanHome.get(), konanDataDir.getOrNull(), project)
+    private val runnerSettings = KotlinNativeToolRunner.Settings.of(
+        kotlinNativeProvider.get().konanHome.getFile().absolutePath,
+        kotlinNativeProvider.get().konanDataDir.getOrNull(),
+        project
+    )
     // Inputs and outputs.
 
     @OutputFile

@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.gradle.utils
 
 import org.gradle.api.Project
+import org.jetbrains.kotlin.compilerRunner.kotlinNativeToolchainEnabled
 
 internal fun Project.whenKaptEnabled(action: () -> Unit) = whenPluginsEnabled(
     setOf("org.jetbrains.kotlin.kapt", "kotlin-kapt"),

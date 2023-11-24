@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.gradle.plugin.usesPlatformOf
 import org.jetbrains.kotlin.gradle.report.UsesBuildMetricsService
 import org.jetbrains.kotlin.gradle.targets.native.UsesKonanPropertiesBuildService
 import org.jetbrains.kotlin.gradle.targets.native.tasks.CompilerPluginData
+import org.jetbrains.kotlin.gradle.targets.native.toolchain.KotlinNativeProvider
 import org.jetbrains.kotlin.gradle.utils.*
 import org.jetbrains.kotlin.konan.target.CompilerOutputKind
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -61,14 +62,6 @@ constructor(
     @get:Internal
     val compilation: KotlinNativeCompilation
         get() = binary.compilation
-
-    @get:Internal
-    val konanDataDir: Provider<String?> = project.provider { project.konanDataDir }
-
-    @get:Internal
-    val konanHome: Provider<String> = project.provider { project.konanHome }
-
-    private val runnerSettings = KotlinNativeCompilerRunner.Settings.of(konanHome.get(), konanDataDir.getOrNull(), project)
 
     final override val toolOptions: KotlinCommonCompilerToolOptions = objectFactory
         .newInstance<KotlinCommonCompilerToolOptionsDefault>()
@@ -206,7 +199,15 @@ constructor(
     private val externalDependenciesArgs by lazy { ExternalDependenciesBuilder(project, compilation).buildCompilerArgs() }
 
     private val cacheBuilderSettings by lazy {
-        CacheBuilder.Settings.createWithProject(konanHome.get(), konanDataDir.getOrNull(), project, binary, konanTarget, toolOptions, externalDependenciesArgs)
+        CacheBuilder.Settings.createWithProject(
+            kotlinNativeProvider.get().konanHome.getFile().absolutePath,
+            kotlinNativeProvider.get().konanDataDir.getOrNull(),
+            project,
+            binary,
+            konanTarget,
+            toolOptions,
+            externalDependenciesArgs
+        )
     }
 
     private class CacheSettings(val orchestration: NativeCacheOrchestration, val kind: NativeCacheKind,
@@ -342,6 +343,17 @@ constructor(
     @get:Optional
     @get:Nested
     var kotlinPluginData: Provider<KotlinCompilerPluginData>? = null
+
+    @get:Nested
+    internal val kotlinNativeProvider: Provider<KotlinNativeProvider> = project.provider {
+        KotlinNativeProvider(project, konanTarget)
+    }
+
+    private val runnerSettings = KotlinNativeCompilerRunner.Settings.of(
+        kotlinNativeProvider.get().konanHome.getFile().absolutePath,
+        kotlinNativeProvider.get().konanDataDir.getOrNull(),
+        project
+    )
 
     @TaskAction
     fun compile() {
