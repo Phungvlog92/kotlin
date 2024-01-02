@@ -62,11 +62,11 @@ fun floatArr(): FloatArray? = null
 @JsExport
 fun doubleArr(): DoubleArray? = null
 
-<!NON_EXPORTABLE_TYPE!>@JsExport
-fun ubyteArr(): UByteArray?<!> = null
-<!NON_EXPORTABLE_TYPE!>@JsExport
-fun ushortArr(): UShortArray?<!> = null
-<!NON_EXPORTABLE_TYPE!>@JsExport
-fun uintArr(): UIntArray?<!> = null
-<!NON_EXPORTABLE_TYPE!>@JsExport
-fun ulongArr(): ULongArray?<!> = null
+@JsExport
+fun ubyteArr(): UByteArray? = null
+@JsExport
+fun ushortArr(): UShortArray? = null
+@JsExport
+fun uintArr(): UIntArray? = null
+@JsExport
+fun ulongArr(): ULongArray? = null
