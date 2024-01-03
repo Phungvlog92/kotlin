@@ -71,7 +71,7 @@ private data class RunProcessResult(
     val retCode: Int,
     val process: Process,
 ) {
-    val output: String get() = inputText.ifBlank { errorText }
+    val output: String get() = errorText.ifBlank { inputText }
 }
 
 private fun assembleAndRunProcess(

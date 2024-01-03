@@ -77,8 +77,8 @@ abstract class AbstractPodInstallTask : CocoapodsTask() {
     }
 
     private fun sharedHandleError(podInstallCommand: List<String>, retCode: Int, error: String, process: Process): String? {
+        val command = podInstallCommand.joinToString(" ")
         return if (error.contains("No such file or directory")) {
-            val command = podInstallCommand.joinToString(" ")
             """ 
                |'$command' command failed with an exception:
                | $error
@@ -91,6 +91,16 @@ abstract class AbstractPodInstallTask : CocoapodsTask() {
                |        To check CocoaPods version type 'pod --version' in the terminal
                |        
                |        To install CocoaPods execute 'sudo gem install cocoapods'
+               |
+            """.trimMargin()
+        } else if (error.contains("[Xcodeproj] Unknown object version")) {
+            """
+               |'$command' command failed with an exception:
+               | $error
+               |
+               |       Your CocoaPods installation is outdated
+               |
+               |       To update CocoaPods execute 'sudo gem install cocoapods'
                |
             """.trimMargin()
         } else {
