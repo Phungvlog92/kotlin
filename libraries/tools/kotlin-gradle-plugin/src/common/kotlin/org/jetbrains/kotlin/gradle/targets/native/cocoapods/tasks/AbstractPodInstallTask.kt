@@ -91,6 +91,9 @@ abstract class AbstractPodInstallTask : CocoapodsTask() {
                |        To check CocoaPods version type 'pod --version' in the terminal
                |        
                |        To install CocoaPods execute 'sudo gem install cocoapods'
+               | 
+               |        Note: Using 'sudo' might lead to permission issues. 
+               |        If you encounter problems, consider using a Ruby version manager like RVM or rbenv.
                |
             """.trimMargin()
         } else if (error.contains("[Xcodeproj] Unknown object version")) {
@@ -98,9 +101,14 @@ abstract class AbstractPodInstallTask : CocoapodsTask() {
                |'$command' command failed with an exception:
                | $error
                |
-               |       Your CocoaPods installation is outdated
+               |       Your CocoaPods installation is outdated or corrupted
                |
                |       To update CocoaPods execute 'sudo gem install cocoapods'
+               |       
+               |       Note: Using 'sudo' might lead to permission issues. 
+               |       If you encounter problems, consider using a Ruby version manager like RVM or rbenv.
+               |
+               |       For more information, refer to the documentation: https://jb.gg/f1cvzo
                |
             """.trimMargin()
         } else {
