@@ -52,6 +52,12 @@ private val preventExportOfSyntheticDeclarationsLowering = makeIrModulePhase(
     description = "Exclude synthetic declarations which we don't want to export such as `Enum.entries` or `DataClass::componentN`",
 )
 
+private val jsStaticLowering = makeIrModulePhase(
+    ::JsStaticLowering,
+    name = "JsStaticLowering",
+    description = "Make for each @JsStatic declaration inside the companion object a proxy declaration inside its parent class static scope",
+)
+
 val scriptRemoveReceiverLowering = makeIrModulePhase(
     ::ScriptRemoveReceiverLowering,
     name = "ScriptRemoveReceiver",
@@ -783,6 +789,7 @@ val loweringList = listOf<SimpleNamedCompilerPhase<JsIrBackendContext, IrModuleF
     scriptRemoveReceiverLowering,
     validateIrBeforeLowering,
     preventExportOfSyntheticDeclarationsLowering,
+    jsStaticLowering,
     inventNamesForLocalClassesPhase,
     collectClassIdentifiersLowering,
     annotationInstantiationLowering,

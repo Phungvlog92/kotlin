@@ -131,3 +131,13 @@ public expect annotation class JsExport() {
 @MustBeDocumented
 @SinceKotlin("1.9")
 public annotation class ExperimentalJsReflectionCreateInstance
+
+/**
+ * Specifies that an additional static method needs to be generated from this element if it's a function.
+ * If this element is a property, additional static getter/setter methods should be generated.
+ */
+@Retention(AnnotationRetention.BINARY)
+@Target(FUNCTION, PROPERTY, PROPERTY_GETTER, PROPERTY_SETTER)
+@MustBeDocumented
+@OptionalExpectation
+public expect annotation class JsStatic()
