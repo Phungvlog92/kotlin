@@ -8,6 +8,7 @@ package org.jetbrains.kotlinx.jspo.compiler.fir.checkers
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
+import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirClassChecker
 import org.jetbrains.kotlin.fir.declarations.FirClass
@@ -26,7 +27,7 @@ import org.jetbrains.kotlin.fir.types.isAny
 import org.jetbrains.kotlin.fir.types.toRegularClassSymbol
 import org.jetbrains.kotlinx.jspo.compiler.resolve.JsPlainObjectsAnnotations
 
-object FirJsPlainObjectsPluginClassChecker : FirClassChecker() {
+object FirJsPlainObjectsPluginClassChecker : FirClassChecker(MppCheckerKind.Common) {
     override fun check(declaration: FirClass, context: CheckerContext, reporter: DiagnosticReporter) {
         with(context) {
             val classSymbol = declaration.symbol as? FirRegularClassSymbol ?: return
@@ -40,7 +41,7 @@ object FirJsPlainObjectsPluginClassChecker : FirClassChecker() {
             }
         }
     }
-    
+
     context(CheckerContext)
     private fun checkJsPlainObjectAnnotationTargets(classSymbol: FirClassSymbol<out FirClass>, reporter: DiagnosticReporter) {
         val classKind = classSymbol.classKind.codeRepresentation ?: error("Unexpected enum entry")
@@ -66,7 +67,7 @@ object FirJsPlainObjectsPluginClassChecker : FirClassChecker() {
                 }
             }
     }
-    
+
     context(CheckerContext)
     private fun checkJsPlainObjectSuperTypes(classSymbol: FirClassSymbol<out FirClass>, reporter: DiagnosticReporter) {
         if (!classSymbol.isEffectivelyExternal(session) || !classSymbol.isInterface) return
