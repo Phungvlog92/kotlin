@@ -317,6 +317,7 @@ fun compileModuleToAnalyzedFir(
     val outputs = sessionWithSources.map { (session, sources) ->
         buildResolveAndCheckFirViaLightTree(session, sources, diagnosticsReporter, countFilesAndLines)
     }
+    outputs.runPlatformCheckers(diagnosticsReporter)
 
     return FirResult(outputs)
 }
