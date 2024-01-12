@@ -181,6 +181,8 @@ public actual open class ArrayList<E> internal constructor(private var array: Ar
     }
 
     @ExperimentalJsExport
+    @SinceKotlin("1.9")
+    @OptIn(ExperimentalJsCollectionsApi::class)
     override fun asJsArrayMutableView(): JsArray<E> = array.unsafeCast<JsArray<E>>()
 
     internal override fun checkIsMutable() {

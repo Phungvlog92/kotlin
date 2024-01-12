@@ -41,11 +41,14 @@ function testImmutableList() {
     const listArrayView = list.asJsArrayView()
 
     assert(listArrayView[0] == 1, "Problem with accessing of element in immutable list array view")
+    assert(listArrayView["0"] == 1, "Problem with accessing of element in immutable list array view by string")
     assert(listArrayView.map(x => x + 1).join("") == "234", "Problem with immutable list array view")
     assert(consumeList(list), "Problem with consumption of a Kotlin list")
     assertThrow(() => { (listArrayView as Array<number>)[1] = 4 }, "Immutable list array view have ability to mutate the list by direct set")
     assertThrow(() => { (listArrayView as Array<number>).push(4) }, "Immutable list array view have ability to mutate the list by 'push'")
     assertThrow(() => { (listArrayView as Array<number>).pop() }, "Immutable list array view have ability to mutate the list by 'pop'")
+    // @ts-expect-error
+    assertThrow(() => { listArrayView["foo"] }, "Immutable list getting a random index")
 }
 
 function testMutableList() {
@@ -53,6 +56,7 @@ function testMutableList() {
     const mutableListView = mutableList.asJsArrayView()
 
     assert(mutableListView[0] == 4, "Problem with accessing of element in mutable list array view")
+    assert(mutableListView["0"] == 4, "Problem with accessing of element in immutable list array view by string")
     assert(mutableListView.map(x => x + 1).join("") == "567", "Problem with mutable list array view")
     assert(!consumeList(mutableList), "Problem with consumption of a Kotlin mutable list as a list")
     assert(consumeMutableList(mutableList), "Problem with consumption of a Kotlin mutable list as a mutable list")
@@ -60,14 +64,19 @@ function testMutableList() {
     assertThrow(() => { (mutableListView as Array<number>)[1] = 4 }, "Mutable list array view have ability to mutate the list by direct set")
     assertThrow(() => { (mutableListView as Array<number>).push(4) }, "Mutable list array view have ability to mutate the list by 'push'")
     assertThrow(() => { (mutableListView as Array<number>).pop() }, "Mutable list array view have ability to mutate the list by 'pop'")
+    // @ts-expect-error
+    assertThrow(() => { mutableListView["foo"] }, "Immutable list getting a random index")
 
     const mutableListMutableView = mutableList.asJsArrayMutableView()
     mutableListMutableView.pop()
 
     assert(mutableListMutableView[0] == 4, "Problem with accessing of element in mutable list mutable array view")
+    assert(mutableListMutableView["0"] == 4, "Problem with accessing of element in mutable list array view by string")
     assert(mutableListMutableView.map(x => x + 1).join("") == "567", "Problem with mutable list mutable array view")
     assert(consumeMutableList(mutableList), "Problem with consumption of a Kotlin mutable list as a mutable list")
     assert(mutableListMutableView.map(x => x + 1).join("") == "5678", "Problem with mutable list mutable array view after original list is mutated")
+    // @ts-expect-error
+    assertThrow(() => { mutableListMutableView["foo"] = 4 }, "Mutable list setting a random index")
 
     mutableListMutableView.shift()
     mutableListMutableView.unshift(9)
@@ -85,6 +94,17 @@ function testMutableList() {
     mutableListMutableView[3] = 4
 
     assert(mutableListMutableView.map(x => x + 1).join("") == "67854", "Problem with mutable list mutable array view after the view is mutated")
+
+    mutableListMutableView["3"] = 6
+
+    assert(mutableListMutableView.map(x => x + 1).join("") == "67874", "Problem with mutable list mutable array view after the view is mutated")
+
+    mutableListMutableView.length = 3
+
+    assert(mutableListMutableView.map(x => x + 1).join("") == "678", "Problem with mutable list mutable array view after the view is mutated after size decreased")
+    assert(mutableListView.map(x => x + 1).join("") == "678", "Problem with mutable list array view after size decreased")
+
+    assertThrow(() => { mutableListMutableView.length = 5 }, "Mutable list view size increasing works, but should not")
 }
 
 function testImmutableSet() {

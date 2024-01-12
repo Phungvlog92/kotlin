@@ -2,6 +2,7 @@
  * Copyright 2010-2023 JetBrains s.r.o. and Kotlin Programming Language contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
+@file:OptIn(ExperimentalJsCollectionsApi::class)
 
 package kotlin.collections
 
@@ -16,8 +17,8 @@ internal fun <E> createJsArrayImmutableViewFrom(list: List<E>): JsReadonlyArray<
         listSize = { list.size },
         listGet = { i -> list[i] },
         listSet = ::UNSUPPORTED_OPERATION.asDynamic(),
-        listAdd = ::UNSUPPORTED_OPERATION.asDynamic(),
-        listDecreaseSize = ::UNSUPPORTED_OPERATION.asDynamic()
+        listDecreaseSize = ::UNSUPPORTED_OPERATION.asDynamic(),
+        listIncreaseSize = ::UNSUPPORTED_OPERATION.asDynamic()
     )
 
 internal fun <E> createJsArrayMutableViewFrom(list: MutableList<E>): JsArray<E> =
@@ -25,8 +26,8 @@ internal fun <E> createJsArrayMutableViewFrom(list: MutableList<E>): JsArray<E> 
         listSize = { list.size },
         listGet = { i -> list[i] },
         listSet = { i, v -> list[i] = v },
-        listAdd = { v -> list.add(v) },
-        listDecreaseSize = { size -> list.subList(list.size - size, list.size).clear() }
+        listDecreaseSize = { size -> list.subList(list.size - size, list.size).clear() },
+        listIncreaseSize = ::UNSUPPORTED_OPERATION.asDynamic()
     )
 
 @Suppress("UNUSED_VARIABLE", "UNUSED_PARAMETER")
@@ -34,8 +35,8 @@ private fun <E> createJsArrayMutableViewWith(
     listSize: () -> Int,
     listGet: (Int) -> E,
     listSet: (Int, E) -> Unit,
-    listAdd: (E) -> Unit,
     listDecreaseSize: (Int) -> Unit,
+    listIncreaseSize: (Int) -> Unit,
 ): dynamic {
     val arrayView = objectCreate<JsArrayView<*>>()
 
@@ -43,19 +44,29 @@ private fun <E> createJsArrayMutableViewWith(
        new Proxy(arrayView, {
            get: function(target, prop, receiver) {
                if (prop === "length") return listSize();
-               if (typeof prop !== "symbol" && !isNaN(prop)) return listGet(prop);
+               var type = typeof prop
+               var index = type === "string" || type === "number" ? +prop : undefined
+               if (!isNaN(index)) return listGet(index);
                return target[prop]
            },
            has: function(target, key) { return !isNaN(key) && key < listSize() },
            set: function(obj, prop, value) {
                 if (prop === "length") {
                     var size = listSize();
-                    if (value < size) listDecreaseSize(size - value)
-                } else if (!isNaN(value)) {
-                    var size = listSize();
-                    if (prop >= size) listAdd(value)
-                    else listSet(prop, value)
-                }
+                    var newSize = type === "string" || type === "number" ? +prop : undefined
+                    if (isNaN(newSize)) throw new RangeError("invalid array length")
+                    if (newSize < size) listDecreaseSize(size - newSize)
+                    else listIncreaseSize(newSize - size)
+                    return true
+                } 
+                
+                var type = typeof prop;
+                var index = type === "string" || type === "number" ? +prop : undefined;
+                
+                if (isNaN(index)) return false;
+                
+                listSet(prop, value)
+                
                 return true
            },
        }) 
