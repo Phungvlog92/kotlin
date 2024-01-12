@@ -25,10 +25,10 @@ internal fun runCommand(
 ): String {
     val runResult = assembleAndRunProcess(command, logger, processConfiguration)
     check(runResult.retCode == 0) {
-        errorHandler?.invoke(runResult.retCode, runResult.output, runResult.process) ?: createErrorMessage(command, runResult)
+        errorHandler?.invoke(runResult.retCode, runResult.fullOutput, runResult.process) ?: createErrorMessage(command, runResult)
     }
 
-    return runResult.inputText
+    return runResult.outputText
 }
 
 /**
@@ -56,22 +56,22 @@ internal fun runCommandWithFallback(
 ): String {
     val runResult = assembleAndRunProcess(command, logger, processConfiguration)
     return if (runResult.retCode != 0) {
-        when (val fallbackOption = fallback(runResult.retCode, runResult.output, runResult.process)) {
+        when (val fallbackOption = fallback(runResult.retCode, runResult.fullOutput, runResult.process)) {
             is CommandFallback.Action -> fallbackOption.fallback
             is CommandFallback.Error -> error(fallbackOption.error ?: createErrorMessage(command, runResult))
         }
     } else {
-        runResult.inputText
+        runResult.outputText
     }
 }
 
 private data class RunProcessResult(
-    val inputText: String,
+    val outputText: String,
     val errorText: String,
     val retCode: Int,
     val process: Process,
 ) {
-    val output: String get() = errorText.ifBlank { inputText }
+    val fullOutput: String get() = listOf(outputText, errorText).filter { it.isNotBlank() }.joinToString("\n")
 }
 
 private fun assembleAndRunProcess(
@@ -118,7 +118,7 @@ private fun createErrorMessage(command: List<String>, runResult: RunProcessResul
     return """
            |Executing of '${command.joinToString(" ")}' failed with code ${runResult.retCode} and message: 
            |
-           |${runResult.inputText}
+           |${runResult.outputText}
            |
            |${runResult.errorText}
            |

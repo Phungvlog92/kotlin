@@ -86,14 +86,13 @@ abstract class AbstractPodInstallTask : CocoapodsTask() {
                |        Full command: $command
                |        
                |        Possible reason: CocoaPods is not installed
-               |        Please check that CocoaPods v1.10 or above is installed.
+               |        Please check that CocoaPods v1.14 or above is installed.
                |        
                |        To check CocoaPods version type 'pod --version' in the terminal
                |        
                |        To install CocoaPods execute 'sudo gem install cocoapods'
                | 
-               |        Note: Using 'sudo' might lead to permission issues. 
-               |        If you encounter problems, consider using a Ruby version manager like RVM or rbenv.
+               $rubyWarnMessage
                |
             """.trimMargin()
         } else if (error.contains("[Xcodeproj] Unknown object version")) {
@@ -101,20 +100,27 @@ abstract class AbstractPodInstallTask : CocoapodsTask() {
                |'$command' command failed with an exception:
                | $error
                |
-               |       Your CocoaPods installation is outdated or corrupted
+               |        Your CocoaPods installation is outdated or corrupted
                |
-               |       To update CocoaPods execute 'sudo gem install cocoapods'
+               |        To update CocoaPods execute 'sudo gem install cocoapods'
                |       
-               |       Note: Using 'sudo' might lead to permission issues. 
-               |       If you encounter problems, consider using a Ruby version manager like RVM or rbenv.
-               |
-               |       For more information, refer to the documentation: https://jb.gg/f1cvzo
+               $rubyWarnMessage
                |
             """.trimMargin()
         } else {
             handleError(retCode, error, process)
         }
     }
+
+    private val rubyWarnMessage: String
+        get() {
+            return """
+                      |        Note: Using 'sudo' might lead to permission issues. 
+                      |        If you encounter problems, consider using a Ruby version manager like RVM or rbenv.
+                      |
+                      |        For more information, refer to the documentation: https://jb.gg/f1cvzo
+                   """.trimIndent()
+        }
 
     abstract fun handleError(retCode: Int, error: String, process: Process): String?
 }
