@@ -592,7 +592,7 @@ class FirCallResolver(
                                     forceFullCompletion = false,
                                     expectedTypeMismatchIsReportedInChecker = true
                                 )
-                            } ?: ResolutionMode.ContextDependent.Default
+                            } ?: ResolutionMode.ContextDependent
                         } else {
                             ResolutionMode.ContextDependent
                         }
@@ -601,7 +601,7 @@ class FirCallResolver(
                     }
                 })
             } else {
-                annotation.replaceArgumentList(annotation.argumentList.transform(transformer, ResolutionMode.ContextDependent.Default))
+                annotation.replaceArgumentList(annotation.argumentList.transform(transformer, ResolutionMode.ContextDependent))
             }
 
             val callInfo = toCallInfo(annotation, reference)
@@ -618,7 +618,7 @@ class FirCallResolver(
                 explicitReceiver = null
             )
         } else {
-            annotation.replaceArgumentList(annotation.argumentList.transform(transformer, ResolutionMode.ContextDependent.Default))
+            annotation.replaceArgumentList(annotation.argumentList.transform(transformer, ResolutionMode.ContextDependent))
 
             val callInfo = toCallInfo(annotation, reference)
 
