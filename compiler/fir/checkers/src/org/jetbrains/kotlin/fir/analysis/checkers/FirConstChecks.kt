@@ -70,7 +70,7 @@ internal fun checkConstantArguments(
             }
             return null
         }
-        expression is FirConstExpression<*>
+        expression is FirLiteralExpression<*>
                 || expressionSymbol is FirEnumEntrySymbol
                 || expressionSymbol?.isConst == true
                 || expressionSymbol is FirConstructorSymbol && classKindOfParent == ClassKind.ANNOTATION_CLASS -> {
@@ -96,7 +96,7 @@ internal fun checkConstantArguments(
             }
 
             for (exp in (expression as FirCall).arguments) {
-                if (exp is FirConstExpression<*> && exp.value == null) {
+                if (exp is FirLiteralExpression<*> && exp.value == null) {
                     return ConstantArgumentKind.NOT_CONST
                 }
 
@@ -204,7 +204,7 @@ internal fun checkConstantArguments(
             // Ok, because we only look at the structure, not resolution-dependent properties.
             @OptIn(SymbolInternals::class)
             return when (propertySymbol.fir.initializer) {
-                is FirConstExpression<*> -> when {
+                is FirLiteralExpression<*> -> when {
                     propertySymbol.isVal -> ConstantArgumentKind.NOT_CONST_VAL_IN_CONST_EXPRESSION
                     else -> ConstantArgumentKind.NOT_CONST
                 }

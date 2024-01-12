@@ -915,7 +915,7 @@ class ControlFlowGraphBuilder {
 
     fun exitWhileLoopCondition(loop: FirLoop): Pair<LoopConditionExitNode, LoopBlockEnterNode> {
         val conditionExitNode = createLoopConditionExitNode(loop.condition).also { addNewSimpleNode(it) }
-        val conditionConstBooleanValue = loop.condition.booleanConstValue
+        val conditionConstBooleanValue = loop.condition.booleanLiteralValue
         addEdge(conditionExitNode, loopExitNodes.getValue(loop), propagateDeadness = false, isDead = conditionConstBooleanValue == true)
         val loopBlockEnterNode = createLoopBlockEnterNode(loop)
         addNewSimpleNode(loopBlockEnterNode, conditionConstBooleanValue == false)
@@ -957,7 +957,7 @@ class ControlFlowGraphBuilder {
     fun exitDoWhileLoop(loop: FirLoop): Pair<LoopConditionExitNode, LoopExitNode> {
         loopConditionEnterNodes.remove(loop)
         val conditionExitNode = createLoopConditionExitNode(loop.condition)
-        val conditionBooleanValue = loop.condition.booleanConstValue
+        val conditionBooleanValue = loop.condition.booleanLiteralValue
         popAndAddEdge(conditionExitNode)
         val blockEnterNode = lastNodes.pop()
         require(blockEnterNode is LoopBlockEnterNode)
@@ -990,7 +990,7 @@ class ControlFlowGraphBuilder {
         addNewSimpleNode(leftExitNode)
         lastNodes.push(leftExitNode) // to create an exit edge later
         val rhsNeverExecuted =
-            binaryLogicExpression.leftOperand.booleanConstValue == (binaryLogicExpression.kind != LogicOperationKind.AND)
+            binaryLogicExpression.leftOperand.booleanLiteralValue == (binaryLogicExpression.kind != LogicOperationKind.AND)
         addNewSimpleNode(rightEnterNode, isDead = rhsNeverExecuted)
         return leftExitNode to rightEnterNode
     }
@@ -1003,14 +1003,14 @@ class ControlFlowGraphBuilder {
         val rightNode = lastNodes.pop()
         val leftNode = lastNodes.pop()
         val rhsAlwaysExecuted =
-            binaryLogicExpression.leftOperand.booleanConstValue == (binaryLogicExpression.kind == LogicOperationKind.AND)
+            binaryLogicExpression.leftOperand.booleanLiteralValue == (binaryLogicExpression.kind == LogicOperationKind.AND)
         addEdge(leftNode, exitNode, propagateDeadness = !rhsAlwaysExecuted, isDead = rhsAlwaysExecuted)
         addEdge(rightNode, exitNode, propagateDeadness = rhsAlwaysExecuted)
         lastNodes.push(exitNode)
         return exitNode
     }
 
-    private val FirExpression.booleanConstValue: Boolean? get() = (this as? FirConstExpression<*>)?.value as? Boolean?
+    private val FirExpression.booleanLiteralValue: Boolean? get() = (this as? FirLiteralExpression<*>)?.value as? Boolean?
 
     // ----------------------------------- Try-catch-finally -----------------------------------
 
@@ -1279,7 +1279,7 @@ class ControlFlowGraphBuilder {
         return node
     }
 
-    fun exitConstExpression(constExpression: FirConstExpression<*>): ConstExpressionNode {
+    fun exitLiteralExpression(constExpression: FirLiteralExpression<*>): ConstExpressionNode {
         return createConstExpressionNode(constExpression).also { addNewSimpleNode(it) }
     }
 

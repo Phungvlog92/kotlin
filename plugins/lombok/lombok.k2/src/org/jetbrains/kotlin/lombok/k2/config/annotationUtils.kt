@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.descriptors.Visibility
 import org.jetbrains.kotlin.fir.declarations.findArgumentByName
 import org.jetbrains.kotlin.fir.declarations.getStringArgument
 import org.jetbrains.kotlin.fir.expressions.FirAnnotation
-import org.jetbrains.kotlin.fir.expressions.FirConstExpression
+import org.jetbrains.kotlin.fir.expressions.FirLiteralExpression
 import org.jetbrains.kotlin.fir.expressions.FirQualifiedAccessExpression
 import org.jetbrains.kotlin.fir.expressions.toResolvedCallableSymbol
 import org.jetbrains.kotlin.fir.references.toResolvedCallableSymbol
@@ -26,7 +26,7 @@ fun FirAnnotation.getAccessLevel(field: Name = LombokConfigNames.VALUE): AccessL
 private fun FirAnnotation.getArgumentAsString(field: Name): String? {
     val argument = findArgumentByName(field) ?: return null
     return when (argument) {
-        is FirConstExpression<*> -> argument.value as? String
+        is FirLiteralExpression<*> -> argument.value as? String
         is FirQualifiedAccessExpression -> {
             val symbol = argument.toResolvedCallableSymbol()
             if (symbol is FirEnumEntrySymbol) {

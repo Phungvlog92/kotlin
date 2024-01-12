@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.fir.analysis.checkers.expression.FirAnnotationCallCh
 import org.jetbrains.kotlin.fir.analysis.diagnostics.web.common.FirWebCommonErrors
 import org.jetbrains.kotlin.fir.declarations.toAnnotationClassId
 import org.jetbrains.kotlin.fir.expressions.FirAnnotationCall
-import org.jetbrains.kotlin.fir.expressions.FirConstExpression
+import org.jetbrains.kotlin.fir.expressions.FirLiteralExpression
 import org.jetbrains.kotlin.js.validateQualifier
 import org.jetbrains.kotlin.name.WebCommonStandardClassIds.Annotations.JsQualifier
 
@@ -22,7 +22,7 @@ object FirJsQualifierChecker : FirAnnotationCallChecker() {
             return
         }
 
-        val string = (expression.argumentMapping.mapping.values.firstOrNull() as? FirConstExpression<*>)?.value as? String ?: return
+        val string = (expression.argumentMapping.mapping.values.firstOrNull() as? FirLiteralExpression<*>)?.value as? String ?: return
 
         if (!validateQualifier(string)) {
             reporter.reportOn(expression.argumentList.arguments.first().source, FirWebCommonErrors.WRONG_JS_QUALIFIER, context)

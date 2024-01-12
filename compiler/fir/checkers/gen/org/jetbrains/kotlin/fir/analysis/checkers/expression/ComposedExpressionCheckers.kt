@@ -61,8 +61,8 @@ class ComposedExpressionCheckers : ExpressionCheckers() {
         get() = _typeOperatorCallCheckers
     override val resolvedQualifierCheckers: Set<FirResolvedQualifierChecker>
         get() = _resolvedQualifierCheckers
-    override val constExpressionCheckers: Set<FirConstExpressionChecker>
-        get() = _constExpressionCheckers
+    override val literalExpressionCheckers: Set<FirLiteralExpressionChecker>
+        get() = _literalExpressionCheckers
     override val callableReferenceAccessCheckers: Set<FirCallableReferenceAccessChecker>
         get() = _callableReferenceAccessCheckers
     override val thisReceiverExpressionCheckers: Set<FirThisReceiverExpressionChecker>
@@ -104,7 +104,7 @@ class ComposedExpressionCheckers : ExpressionCheckers() {
     private val _stringConcatenationCallCheckers: MutableSet<FirStringConcatenationCallChecker> = mutableSetOf()
     private val _typeOperatorCallCheckers: MutableSet<FirTypeOperatorCallChecker> = mutableSetOf()
     private val _resolvedQualifierCheckers: MutableSet<FirResolvedQualifierChecker> = mutableSetOf()
-    private val _constExpressionCheckers: MutableSet<FirConstExpressionChecker> = mutableSetOf()
+    private val _literalExpressionCheckers: MutableSet<FirLiteralExpressionChecker> = mutableSetOf()
     private val _callableReferenceAccessCheckers: MutableSet<FirCallableReferenceAccessChecker> = mutableSetOf()
     private val _thisReceiverExpressionCheckers: MutableSet<FirThisReceiverExpressionChecker> = mutableSetOf()
     private val _whileLoopCheckers: MutableSet<FirWhileLoopChecker> = mutableSetOf()
@@ -140,7 +140,7 @@ class ComposedExpressionCheckers : ExpressionCheckers() {
         _stringConcatenationCallCheckers += checkers.stringConcatenationCallCheckers
         _typeOperatorCallCheckers += checkers.typeOperatorCallCheckers
         _resolvedQualifierCheckers += checkers.resolvedQualifierCheckers
-        _constExpressionCheckers += checkers.constExpressionCheckers
+        _literalExpressionCheckers += checkers.literalExpressionCheckers
         _callableReferenceAccessCheckers += checkers.callableReferenceAccessCheckers
         _thisReceiverExpressionCheckers += checkers.thisReceiverExpressionCheckers
         _whileLoopCheckers += checkers.whileLoopCheckers

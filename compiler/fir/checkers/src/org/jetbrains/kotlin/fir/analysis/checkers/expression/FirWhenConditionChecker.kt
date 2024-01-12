@@ -41,7 +41,7 @@ object FirWhenConditionChecker : FirWhenExpressionChecker() {
                     val arguments = condition.arguments
                     if (arguments.size == 2 && arguments[0].unwrapSmartcastExpression() is FirWhenSubjectExpression) {
                         val value = when (val targetExpression = arguments[1]) {
-                            is FirConstExpression<*> -> targetExpression.value
+                            is FirLiteralExpression<*> -> targetExpression.value
                             is FirQualifiedAccessExpression -> targetExpression.calleeReference.toResolvedCallableSymbol() as? FirEnumEntrySymbol
                                 ?: continue
                             is FirResolvedQualifier -> {

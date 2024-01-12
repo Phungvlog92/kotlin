@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.fir.analysis.checkers.expression.FirFunctionCallChec
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.diagnostics.reportOn
-import org.jetbrains.kotlin.fir.expressions.FirConstExpression
+import org.jetbrains.kotlin.fir.expressions.FirLiteralExpression
 import org.jetbrains.kotlin.fir.expressions.FirFunctionCall
 
 object EmptyRangeChecker : FirFunctionCallChecker() {
@@ -40,12 +40,12 @@ object EmptyRangeChecker : FirFunctionCallChecker() {
 
     private val FirFunctionCall.rangeLeft: Long?
         get() {
-            return (explicitReceiver as? FirConstExpression<*>)?.value as? Long
+            return (explicitReceiver as? FirLiteralExpression<*>)?.value as? Long
         }
 
     private val FirFunctionCall.rangeRight: Long?
         get() {
-            val arg = argumentList.arguments.getOrNull(0) as? FirConstExpression<*>
+            val arg = argumentList.arguments.getOrNull(0) as? FirLiteralExpression<*>
             return arg?.value as? Long
         }
 }

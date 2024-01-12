@@ -408,7 +408,7 @@ object BuilderConfigurator : AbstractFirBuilderConfigurator<FirTreeBuilder>(FirT
 //            useTypes(whenExpressionType)
 //        }
 
-        noBuilder(constExpression)
+        noBuilder(literalExpression)
 
         builder(samConversionExpression) {
             withCopy()

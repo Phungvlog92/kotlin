@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
-import org.jetbrains.kotlin.fir.expressions.FirConstExpression
+import org.jetbrains.kotlin.fir.expressions.FirLiteralExpression
 import org.jetbrains.kotlin.fir.expressions.FirFunctionCall
 import org.jetbrains.kotlin.fir.expressions.arguments
 import org.jetbrains.kotlin.fir.references.toResolvedNamedFunctionSymbol
@@ -21,7 +21,7 @@ object FirDivisionByZeroChecker : FirFunctionCallChecker() {
     private val defaultDivName = Name.identifier("div")
 
     override fun check(expression: FirFunctionCall, context: CheckerContext, reporter: DiagnosticReporter) {
-        val firstValue = (expression.arguments.singleOrNull() as? FirConstExpression<*>)?.value
+        val firstValue = (expression.arguments.singleOrNull() as? FirLiteralExpression<*>)?.value
         if (firstValue != null && (firstValue == 0L || firstValue == 0.0f || firstValue == 0.0)) {
             val callableId = (expression.calleeReference.toResolvedNamedFunctionSymbol())?.callableId
             if (callableId != null && callableId.packageName == defaultPackageName && callableId.callableName == defaultDivName) {

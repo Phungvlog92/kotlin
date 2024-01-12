@@ -171,7 +171,7 @@ class JsObjectFunctionsGenerator(session: FirSession) : FirDeclarationGeneration
     ): FirSimpleFunction {
         return createJsObjectFunction(callableId, parent, jsSimpleObjectInterface) {
             runIf(resolvedReturnTypeRef.type.isNullable) {
-                buildConstExpression(
+                buildLiteralExpression(
                     source = null,
                     value = null,
                     kind = ConstantValueKind.Null,

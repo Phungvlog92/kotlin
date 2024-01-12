@@ -37,7 +37,7 @@ object RedundantExplicitTypeChecker : FirPropertyChecker() {
         if (typeReference.annotations.isNotEmpty()) return
 
         when (initializer) {
-            is FirConstExpression<*> -> {
+            is FirLiteralExpression<*> -> {
                 when (initializer.source?.elementType) {
                     KtNodeTypes.BOOLEAN_CONSTANT -> {
                         if (!type.isSame(StandardClassIds.Boolean)) return

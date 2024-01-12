@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.declarations.utils.correspondingValueParameterFromPrimaryConstructor
 import org.jetbrains.kotlin.fir.declarations.utils.isData
 import org.jetbrains.kotlin.fir.declarations.utils.nameOrSpecialName
-import org.jetbrains.kotlin.fir.expressions.FirConstExpression
+import org.jetbrains.kotlin.fir.expressions.FirLiteralExpression
 import org.jetbrains.kotlin.fir.expressions.FirQualifiedAccessExpression
 import org.jetbrains.kotlin.fir.references.FirErrorNamedReference
 import org.jetbrains.kotlin.fir.references.FirNamedReference
@@ -284,7 +284,7 @@ object FirOptInUsageBaseChecker {
         }
 
         val severity = Experimentality.Severity.entries.firstOrNull { it.name == levelName } ?: Experimentality.DEFAULT_SEVERITY
-        val message = (experimental.findArgumentByName(MESSAGE) as? FirConstExpression<*>)?.value as? String
+        val message = (experimental.findArgumentByName(MESSAGE) as? FirLiteralExpression<*>)?.value as? String
         return Experimentality(symbol.classId, severity, message, annotatedOwnerClassName)
     }
 
