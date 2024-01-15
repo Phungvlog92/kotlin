@@ -376,6 +376,12 @@ public class LLFirPreresolvedReversedDiagnosticCompilerFE10TestDataTestGenerated
         }
 
         @Test
+        @TestMetadata("expressionsInQaSelectorsCornerCases.kt")
+        public void testExpressionsInQaSelectorsCornerCases() throws Exception {
+            runTest("compiler/testData/diagnostics/tests/expressionsInQaSelectorsCornerCases.kt");
+        }
+
+        @Test
         @TestMetadata("ExtensionCallInvoke.kt")
         public void testExtensionCallInvoke() throws Exception {
             runTest("compiler/testData/diagnostics/tests/ExtensionCallInvoke.kt");
