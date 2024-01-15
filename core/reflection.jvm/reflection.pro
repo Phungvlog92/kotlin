@@ -3,6 +3,7 @@
 -target 1.6
 -dontoptimize
 -dontobfuscate
+-dontprocesskotlinmetadata
 # -dontshrink
 
 -keep public class kotlin.reflect.* { *; }

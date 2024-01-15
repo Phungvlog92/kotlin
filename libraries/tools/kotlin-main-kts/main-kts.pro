@@ -1,6 +1,7 @@
 -target 1.8
 -dontoptimize
 -dontobfuscate
+-dontprocesskotlinmetadata
 # -dontshrink
 
 -keepdirectories META-INF/**

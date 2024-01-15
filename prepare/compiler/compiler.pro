@@ -79,6 +79,7 @@
 #-libraryjars '<bootstrap.script.runtime>'
 #-libraryjars '<tools.jar>'
 
+-dontprocesskotlinmetadata
 -dontoptimize
 -dontobfuscate
 
