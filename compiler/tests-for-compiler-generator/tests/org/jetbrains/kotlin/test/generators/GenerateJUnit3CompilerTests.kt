@@ -332,6 +332,14 @@ fun generateJUnit3CompilerTests(args: Array<String>, mainClassName: String?) {
                 model("writeFlags", targetBackend = TargetBackend.JVM_IR)
             }
 
+            testClass<AbstractFirPsiWriteFlagsTest> {
+                model("writeFlags", targetBackend = TargetBackend.JVM_IR)
+            }
+
+            testClass<AbstractFirLightTreeWriteFlagsTest> {
+                model("writeFlags", targetBackend = TargetBackend.JVM_IR)
+            }
+
             testClass<AbstractIrWriteSignatureTest> {
                 model("writeSignature", targetBackend = TargetBackend.JVM_IR)
             }

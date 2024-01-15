@@ -42,6 +42,9 @@ class CustomScriptCodegenTest : CodegenTestCase() {
         myFiles = CodegenTestFiles.create("scriptTest.kts", text, myEnvironment.project)
     }
 
+    override val backend: TargetBackend
+        get() = TargetBackend.JVM
+
     private fun createScriptTestEnvironment(vararg scriptDefinitions: String) {
         if (myEnvironment != null) {
             throw IllegalStateException("must not set up myEnvironment twice")
@@ -60,7 +63,6 @@ class CustomScriptCodegenTest : CodegenTestCase() {
         val configuration = createConfiguration(
             ConfigurationKind.ALL,
             TestJdkKind.MOCK_JDK,
-            TargetBackend.JVM,
             additionalDependencies,
             emptyList(),
             emptyList()
