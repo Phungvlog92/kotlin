@@ -7,28 +7,55 @@ package org.jetbrains.kotlin.objcexport
 
 import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
 import org.jetbrains.kotlin.analysis.api.symbols.*
-import org.jetbrains.kotlin.analysis.api.symbols.KtClassKind.CLASS
-import org.jetbrains.kotlin.analysis.api.symbols.KtClassKind.INTERFACE
-import org.jetbrains.kotlin.backend.konan.objcexport.ObjCClass
-import org.jetbrains.kotlin.backend.konan.objcexport.ObjCExportStub
-import org.jetbrains.kotlin.backend.konan.objcexport.ObjCHeader
+import org.jetbrains.kotlin.analysis.api.symbols.KtClassKind.*
+import org.jetbrains.kotlin.backend.konan.objcexport.*
 import org.jetbrains.kotlin.psi.KtFile
 
 
 context(KtAnalysisSession, KtObjCExportSession)
-fun translateToObjCHeader(files: List<KtFile>) : ObjCHeader {
+fun translateToObjCHeader(files: List<KtFile>): ObjCHeader {
     val declarations = files.flatMap { ktFile -> ktFile.translateToObjCExportStubs() }
+
     return ObjCHeader(
         stubs = declarations,
-        classForwardDeclarations = emptySet(),
-        protocolForwardDeclarations = declarations
-            .filterIsInstance<ObjCClass>()
-            .flatMap { it.superProtocols }
-            .toSet(),
+        classForwardDeclarations = getClassForwardDeclarations(declarations),
+        protocolForwardDeclarations = getProtocolForwardDeclarations(declarations),
         additionalImports = emptyList(),
         exportKDoc = configuration.exportKDoc
     )
 }
+
+/**
+ * Class which have static property must have forward declaration
+ *
+ * ```
+ * @class Foo;
+ *
+ * @interface Foo
+ * @property (class) Foo
+ * @end
+ * ```
+ */
+private fun getClassForwardDeclarations(declarations: List<ObjCExportStub>): Set<ObjCClassForwardDeclaration> {
+    return declarations
+        .filterIsInstance<ObjCClass>()
+        .filter { clazz ->
+            clazz.members
+                .filterIsInstance<ObjCProperty>()
+                .any { property ->
+                    val className = (property.type as? ObjCClassType)?.className == clazz.name
+                    val static = property.propertyAttributes.contains("class")
+                    className && static
+                }
+        }.map { clazz ->
+            ObjCClassForwardDeclaration(clazz.name)
+        }.toSet()
+}
+
+private fun getProtocolForwardDeclarations(declarations: List<ObjCExportStub>) = declarations
+    .filterIsInstance<ObjCClass>()
+    .flatMap { it.superProtocols }
+    .toSet()
 
 context(KtAnalysisSession, KtObjCExportSession)
 fun KtFile.translateToObjCExportStubs(): List<ObjCExportStub> {
@@ -48,6 +75,7 @@ internal fun KtSymbol.translateToObjCExportStubs(): List<ObjCExportStub> {
         this is KtFileSymbol -> translateToObjCExportStubs()
         this is KtClassOrObjectSymbol && classKind == INTERFACE -> listOfNotNull(translateToObjCProtocol())
         this is KtClassOrObjectSymbol && classKind == CLASS -> listOfNotNull(translateToObjCClass())
+        this is KtClassOrObjectSymbol && classKind == OBJECT -> listOfNotNull(translateToObjCObject())
         this is KtConstructorSymbol -> translateToObjCConstructors()
         this is KtPropertySymbol -> listOfNotNull(translateToObjCProperty())
         this is KtFunctionSymbol -> listOfNotNull(translateToObjCMethod())
