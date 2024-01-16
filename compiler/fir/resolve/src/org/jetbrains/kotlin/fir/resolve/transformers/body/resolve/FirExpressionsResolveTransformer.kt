@@ -406,7 +406,7 @@ open class FirExpressionsResolveTransformer(transformer: FirAbstractBodyResolveT
         /**
          * When we're resolving an operator like `a += b` we try to resolve it with different options of desugaring like
          * `a = a.plus(b)` and `a.plusAssign(b)` until find something that looks successful.
-         * But at this stage, we skip resolving receiver arguments and completion in any form.
+         * But at this stage, we skip transformation of receiver, arguments and skip completion in any form.
          */
         OPTION_FOR_AUGMENTED_ASSIGNMENT,
     }
