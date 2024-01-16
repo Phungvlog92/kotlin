@@ -200,8 +200,8 @@ constructor(
 
     private val cacheBuilderSettings by lazy {
         CacheBuilder.Settings.createWithProject(
-            kotlinNativeProvider.get().konanHome.getFile().absolutePath,
-            kotlinNativeProvider.get().konanDataDir.getOrNull(),
+            kotlinNativeProvider.get().compilerDirectory.getFile().absolutePath,
+            kotlinNativeProvider.get().konanDataDir.orNull,
             project,
             binary,
             konanTarget,
@@ -210,14 +210,18 @@ constructor(
         )
     }
 
-    private class CacheSettings(val orchestration: NativeCacheOrchestration, val kind: NativeCacheKind,
-                                val icEnabled: Boolean, val threads: Int,
-                                val gradleUserHomeDir: File, val gradleBuildDir: File)
+    private class CacheSettings(
+        val orchestration: NativeCacheOrchestration, val kind: NativeCacheKind,
+        val icEnabled: Boolean, val threads: Int,
+        val gradleUserHomeDir: File, val gradleBuildDir: File,
+    )
 
     private val cacheSettings by lazy {
-        CacheSettings(project.getKonanCacheOrchestration(), project.getKonanCacheKind(konanTarget),
-                      project.isKonanIncrementalCompilationEnabled(), project.getKonanParallelThreads(),
-                      project.gradle.gradleUserHomeDir, project.layout.buildDirectory.get().asFile)
+        CacheSettings(
+            project.getKonanCacheOrchestration(), project.getKonanCacheKind(konanTarget),
+            project.isKonanIncrementalCompilationEnabled(), project.getKonanParallelThreads(),
+            project.gradle.gradleUserHomeDir, project.layout.buildDirectory.get().asFile
+        )
     }
 
     override fun createCompilerArguments(context: CreateCompilerArgumentsContext) = context.create<K2NativeCompilerArguments> {
@@ -349,11 +353,26 @@ constructor(
         KotlinNativeProvider(project, konanTarget)
     }
 
-    private val runnerSettings = KotlinNativeCompilerRunner.Settings.of(
-        kotlinNativeProvider.get().konanHome.getFile().absolutePath,
-        kotlinNativeProvider.get().konanDataDir.getOrNull(),
-        project
+    @Deprecated(
+        message = "This property as a konanHome will be squashed into one in future releases.",
+        replaceWith = ReplaceWith("kotlinNativeProvider.konanDataDir")
     )
+    @get:Internal
+    val konanDataDir: Provider<String?> = project.provider { kotlinNativeProvider.get().konanDataDir.get() }
+
+    @Deprecated(
+        message = "This property as a konanDataDir will be squashed into one in future releases.",
+        replaceWith = ReplaceWith("kotlinNativeProvider.compilerDirectory")
+    )
+    @get:Internal
+    val konanHome: Provider<String> = project.provider { kotlinNativeProvider.get().compilerDirectory.get().asFile.absolutePath }
+
+    private val runnerSettings
+        get() = KotlinNativeCompilerRunner.Settings.of(
+            kotlinNativeProvider.get().compilerDirectory.getFile().absolutePath,
+            kotlinNativeProvider.get().konanDataDir.orNull,
+            project
+        )
 
     @TaskAction
     fun compile() {

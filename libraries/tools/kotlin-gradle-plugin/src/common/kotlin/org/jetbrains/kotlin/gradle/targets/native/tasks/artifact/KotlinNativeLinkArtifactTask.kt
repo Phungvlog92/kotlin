@@ -23,9 +23,10 @@ import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.build.report.metrics.BuildMetricsReporter
 import org.jetbrains.kotlin.build.report.metrics.GradleBuildPerformanceMetric
 import org.jetbrains.kotlin.build.report.metrics.GradleBuildTime
+import org.jetbrains.kotlin.compilerRunner.*
 import org.jetbrains.kotlin.compilerRunner.KotlinNativeCompilerRunner
-import org.jetbrains.kotlin.compilerRunner.KotlinToolRunner
 import org.jetbrains.kotlin.compilerRunner.addBuildMetricsForTaskAction
+import org.jetbrains.kotlin.compilerRunner.konanDataDir
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.internal.ensureParentDirsCreated
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider
@@ -175,11 +176,26 @@ abstract class KotlinNativeLinkArtifactTask @Inject constructor(
         KotlinNativeProvider(project, konanTarget)
     }
 
-    private val runnerSettings = KotlinNativeCompilerRunner.Settings.of(
-        kotlinNativeProvider.get().konanHome.getFile().absolutePath,
-        kotlinNativeProvider.get().konanDataDir.getOrNull(),
-        project
+    @Deprecated(
+        message = "This property as a konanHome will be squashed into one in future releases.",
+        replaceWith = ReplaceWith("kotlinNativeProvider.konanDataDir")
     )
+    @get:Internal
+    val konanDataDir: Provider<String?> = project.provider { kotlinNativeProvider.get().konanDataDir.get() }
+
+    @Deprecated(
+        message = "This property as a konanDataDir will be squashed into one in future releases.",
+        replaceWith = ReplaceWith("kotlinNativeProvider.compilerDirectory")
+    )
+    @get:Internal
+    val konanHome: Provider<String> = project.provider { kotlinNativeProvider.get().compilerDirectory.get().asFile.absolutePath }
+
+    private val runnerSettings
+        get() = KotlinNativeCompilerRunner.Settings.of(
+            kotlinNativeProvider.get().compilerDirectory.getFile().absolutePath,
+            kotlinNativeProvider.get().konanDataDir.orNull,
+            project
+        )
 
     init {
         baseName.convention(project.name)

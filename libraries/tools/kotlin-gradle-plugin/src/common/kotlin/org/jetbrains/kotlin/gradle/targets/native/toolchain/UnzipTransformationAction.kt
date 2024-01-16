@@ -13,6 +13,7 @@ import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.FileSystemLocation
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.provider.Provider
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import javax.inject.Inject
 
@@ -22,6 +23,10 @@ private const val EXTRACTED_ARCHIVE_RELATED_PATH = "extracted"
 /**
  * An implementation of a gradle [TransformAction] to unzip configurations' artifacts in `tar.gz` and `zip` formats.
  */
+@DisableCachingByDefault(
+    because = "Plugin authors should not put into the remote build cache operations that does only I/O." +
+            "Such I/O operation locally in the most cases faster than downloading artifacts via network."
+)
 abstract class UnzipTransformationAction : TransformAction<TransformParameters.None> {
 
     @get:Inject

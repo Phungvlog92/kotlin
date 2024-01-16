@@ -336,6 +336,20 @@ internal constructor(
         KotlinNativeProvider(project, konanTarget)
     }
 
+    @Deprecated(
+        message = "This property as a konanHome will be squashed into one in future releases.",
+        replaceWith = ReplaceWith("kotlinNativeProvider.konanDataDir")
+    )
+    @get:Internal
+    val konanDataDir: Provider<String?> = project.provider { kotlinNativeProvider.get().konanDataDir.get() }
+
+    @Deprecated(
+        message = "This property as a konanDataDir will be squashed into one in future releases.",
+        replaceWith = ReplaceWith("kotlinNativeProvider.compilerDirectory")
+    )
+    @get:Internal
+    val konanHome: Provider<String> = project.provider { kotlinNativeProvider.get().compilerDirectory.get().asFile.absolutePath }
+
     @get:Nested
     override val multiplatformStructure: K2MultiplatformStructure = objectFactory.newInstance()
 
@@ -404,11 +418,12 @@ internal constructor(
     override val additionalCompilerOptions: Provider<Collection<String>>
         get() = compilerOptions.freeCompilerArgs as Provider<Collection<String>>
 
-    private val runnerSettings = KotlinNativeCompilerRunner.Settings.of(
-        kotlinNativeProvider.get().konanHome.getFile().absolutePath,
-        kotlinNativeProvider.get().konanDataDir.getOrNull(),
-        project
-    )
+    private val runnerSettings
+        get() = KotlinNativeCompilerRunner.Settings.of(
+            kotlinNativeProvider.get().compilerDirectory.getFile().absolutePath,
+            kotlinNativeProvider.get().konanDataDir.orNull,
+            project
+        )
     // endregion.
 
     @Suppress("DeprecatedCallableAddReplaceWith")
@@ -1080,11 +1095,27 @@ abstract class CInteropProcess @Inject internal constructor(params: Params) :
         KotlinNativeProvider(project, konanTarget)
     }
 
-    private val runnerSettings = KotlinNativeToolRunner.Settings.of(
-        kotlinNativeProvider.get().konanHome.getFile().absolutePath,
-        kotlinNativeProvider.get().konanDataDir.getOrNull(),
-        project
+    @Deprecated(
+        message = "This property as a konanHome will be squashed into one in future releases.",
+        replaceWith = ReplaceWith("kotlinNativeProvider.konanDataDir")
     )
+    @get:Internal
+    val konanDataDir: Provider<String?> = project.provider { kotlinNativeProvider.get().konanDataDir.get() }
+
+    @Deprecated(
+        message = "This property as a konanDataDir will be squashed into one in future releases.",
+        replaceWith = ReplaceWith("kotlinNativeProvider.compilerDirectory")
+    )
+    @get:Internal
+    val konanHome: Provider<String> = project.provider { kotlinNativeProvider.get().compilerDirectory.get().asFile.absolutePath }
+
+
+    private val runnerSettings
+        get() = KotlinNativeToolRunner.Settings.of(
+            kotlinNativeProvider.get().compilerDirectory.getFile().absolutePath,
+            kotlinNativeProvider.get().konanDataDir.orNull,
+            project
+        )
     // Inputs and outputs.
 
     @OutputFile
