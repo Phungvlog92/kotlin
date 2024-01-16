@@ -3,7 +3,6 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-@file:OptIn(ExperimentalJsExport::class, ExperimentalJsCollectionsApi::class)
 @file:Suppress(
     "NON_ABSTRACT_FUNCTION_WITH_NO_BODY",
     "MUST_BE_INITIALIZED_OR_BE_ABSTRACT",
@@ -205,7 +204,7 @@ public interface List<out E> : Collection<E> {
     @ExperimentalJsExport
     @ExperimentalJsCollectionsApi
     @SinceKotlin("1.9")
-    public fun asJsArrayView(): JsReadonlyArray<E> = createJsArrayImmutableViewFrom(this)
+    public fun asJsReadonlyArrayView(): JsReadonlyArray<E> = createJsReadonlyArrayViewFrom(this)
 }
 
 /**
@@ -281,7 +280,7 @@ public interface MutableList<E> : List<E>, MutableCollection<E> {
     @ExperimentalJsExport
     @ExperimentalJsCollectionsApi
     @SinceKotlin("1.9")
-    public fun asJsArrayMutableView(): JsArray<E> = createJsArrayMutableViewFrom(this)
+    public fun asJsArrayView(): JsArray<E> = createJsArrayViewFrom(this)
 }
 
 /**
@@ -311,7 +310,7 @@ public interface Set<out E> : Collection<E> {
     @ExperimentalJsExport
     @ExperimentalJsCollectionsApi
     @SinceKotlin("1.9")
-    public fun asJsSetView(): JsReadonlySet<E> = createJsSetImmutableViewFrom(this)
+    public fun asJsReadonlySetView(): JsReadonlySet<E> = createJsReadonlySetViewFrom(this)
 }
 
 /**
@@ -351,7 +350,7 @@ public interface MutableSet<E> : Set<E>, MutableCollection<E> {
     @ExperimentalJsExport
     @ExperimentalJsCollectionsApi
     @SinceKotlin("1.9")
-    public fun asJsSetMutableView(): JsSet<E> = createJsSetMutableViewFrom(this)
+    public fun asJsSetView(): JsSet<E> = createJsSetViewFrom(this)
 }
 
 /**
@@ -428,7 +427,7 @@ public interface Map<K, out V> {
     @ExperimentalJsExport
     @ExperimentalJsCollectionsApi
     @SinceKotlin("1.9")
-    public fun asJsMapView(): JsReadonlyMap<K, V> = createJsMapImmutableViewFrom(this)
+    public fun asJsReadonlyMapView(): JsReadonlyMap<K, V> = createJsReadonlyMapViewFrom(this)
 }
 
 /**
@@ -499,5 +498,5 @@ public interface MutableMap<K, V> : Map<K, V> {
     @ExperimentalJsExport
     @ExperimentalJsCollectionsApi
     @SinceKotlin("1.9")
-    public fun asJsMapMutableView(): JsMap<K, V> = createJsMapMutableViewFrom(this)
+    public fun asJsMapView(): JsMap<K, V> = createJsMapViewFrom(this)
 }

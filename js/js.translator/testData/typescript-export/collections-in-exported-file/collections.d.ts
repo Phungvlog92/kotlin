@@ -2,37 +2,37 @@ declare namespace JS_TESTS {
     type Nullable<T> = T | null | undefined
     namespace kotlin.collections {
         interface KtList<E> /* extends kotlin.collections.Collection<E> */ {
-            asJsArrayView(): ReadonlyArray<E>;
+            asJsReadonlyArrayView(): ReadonlyArray<E>;
             readonly __doNotUseOrImplementIt: {
                 readonly "kotlin.collections.KtList": unique symbol;
             };
         }
         interface KtMap<K, V> {
-            asJsMapView(): ReadonlyMap<K, V>;
+            asJsReadonlyMapView(): ReadonlyMap<K, V>;
             readonly __doNotUseOrImplementIt: {
                 readonly "kotlin.collections.KtMap": unique symbol;
             };
         }
         interface KtMutableList<E> extends kotlin.collections.KtList<E>/*, kotlin.collections.MutableCollection<E> */ {
-            asJsArrayMutableView(): Array<E>;
+            asJsArrayView(): Array<E>;
             readonly __doNotUseOrImplementIt: {
                 readonly "kotlin.collections.KtMutableList": unique symbol;
             } & kotlin.collections.KtList<E>["__doNotUseOrImplementIt"];
         }
         interface KtSet<E> /* extends kotlin.collections.Collection<E> */ {
-            asJsSetView(): ReadonlySet<E>;
+            asJsReadonlySetView(): ReadonlySet<E>;
             readonly __doNotUseOrImplementIt: {
                 readonly "kotlin.collections.KtSet": unique symbol;
             };
         }
         interface KtMutableSet<E> extends kotlin.collections.KtSet<E>/*, kotlin.collections.MutableCollection<E> */ {
-            asJsSetMutableView(): Set<E>;
+            asJsSetView(): Set<E>;
             readonly __doNotUseOrImplementIt: {
                 readonly "kotlin.collections.KtMutableSet": unique symbol;
             } & kotlin.collections.KtSet<E>["__doNotUseOrImplementIt"];
         }
         interface KtMutableMap<K, V> extends kotlin.collections.KtMap<K, V> {
-            asJsMapMutableView(): Map<K, V>;
+            asJsMapView(): Map<K, V>;
             readonly __doNotUseOrImplementIt: {
                 readonly "kotlin.collections.KtMutableMap": unique symbol;
             } & kotlin.collections.KtMap<K, V>["__doNotUseOrImplementIt"];

@@ -35,12 +35,12 @@ class PrepareCollectionsToExportLowering(private val context: JsIrBackendContext
     private val IrClassSymbol.primaryConstructorSymbol: IrConstructorSymbol get() = owner.primaryConstructor!!.symbol
 
     private val exportedMethodNames = setOf(
+        "asJsReadonlyArrayView",
         "asJsArrayView",
-        "asJsArrayMutableView",
+        "asJsReadonlySetView",
         "asJsSetView",
-        "asJsSetMutableView",
-        "asJsMapView",
-        "asJsMapMutableView"
+        "asJsReadonlyMapView",
+        "asJsMapView"
     )
 
     private val exportableSymbols = setOf(

@@ -12,8 +12,8 @@ private class JsArrayView<E> : JsArray<E>()
 
 private fun UNSUPPORTED_OPERATION() { throw UnsupportedOperationException() }
 
-internal fun <E> createJsArrayImmutableViewFrom(list: List<E>): JsReadonlyArray<E> =
-    createJsArrayMutableViewWith(
+internal fun <E> createJsReadonlyArrayViewFrom(list: List<E>): JsReadonlyArray<E> =
+    createJsArrayViewWith(
         listSize = { list.size },
         listGet = { i -> list[i] },
         listSet = ::UNSUPPORTED_OPERATION.asDynamic(),
@@ -21,8 +21,8 @@ internal fun <E> createJsArrayImmutableViewFrom(list: List<E>): JsReadonlyArray<
         listIncreaseSize = ::UNSUPPORTED_OPERATION.asDynamic()
     )
 
-internal fun <E> createJsArrayMutableViewFrom(list: MutableList<E>): JsArray<E> =
-    createJsArrayMutableViewWith(
+internal fun <E> createJsArrayViewFrom(list: MutableList<E>): JsArray<E> =
+    createJsArrayViewWith(
         listSize = { list.size },
         listGet = { i -> list[i] },
         listSet = { i, v -> list[i] = v },
@@ -31,7 +31,7 @@ internal fun <E> createJsArrayMutableViewFrom(list: MutableList<E>): JsArray<E> 
     )
 
 @Suppress("UNUSED_VARIABLE", "UNUSED_PARAMETER")
-private fun <E> createJsArrayMutableViewWith(
+private fun <E> createJsArrayViewWith(
     listSize: () -> Int,
     listGet: (Int) -> E,
     listSet: (Int, E) -> Unit,
@@ -75,8 +75,8 @@ private fun <E> createJsArrayMutableViewWith(
 
 private class JsSetView<E> : JsSet<E>()
 
-internal fun <E> createJsSetImmutableViewFrom(set: Set<E>): JsReadonlySet<E> =
-    createJsSetImmutableViewWith<E>(
+internal fun <E> createJsReadonlySetViewFrom(set: Set<E>): JsReadonlySet<E> =
+    createJsSetViewWith<E>(
         setSize = { set.size },
         setAdd = ::UNSUPPORTED_OPERATION.asDynamic(),
         setRemove = ::UNSUPPORTED_OPERATION.asDynamic(),
@@ -87,8 +87,8 @@ internal fun <E> createJsSetImmutableViewFrom(set: Set<E>): JsReadonlySet<E> =
         forEach = { cb, t -> forEach(cb, t ?: set) }
     )
 
-internal fun <E> createJsSetMutableViewFrom(set: MutableSet<E>): JsSet<E> =
-    createJsSetImmutableViewWith<E>(
+internal fun <E> createJsSetViewFrom(set: MutableSet<E>): JsSet<E> =
+    createJsSetViewWith<E>(
         setSize = { set.size },
         setAdd = { v -> set.add(v) },
         setRemove = { v -> set.remove(v) },
@@ -100,7 +100,7 @@ internal fun <E> createJsSetMutableViewFrom(set: MutableSet<E>): JsSet<E> =
     )
 
 @Suppress("UNUSED_VARIABLE", "UNUSED_PARAMETER")
-private fun <E> createJsSetImmutableViewWith(
+private fun <E> createJsSetViewWith(
     setSize: () -> Int,
     setAdd: (E) -> Unit,
     setRemove: (E) -> Boolean,
@@ -132,8 +132,8 @@ private fun <E> createJsSetImmutableViewWith(
 
 private class JsMapView<K, V> : JsMap<K, V>()
 
-internal fun <K, V> createJsMapImmutableViewFrom(map: Map<K, V>): JsReadonlyMap<K, V> =
-    createJsMapImmutableViewWith<K, V>(
+internal fun <K, V> createJsReadonlyMapViewFrom(map: Map<K, V>): JsReadonlyMap<K, V> =
+    createJsMapViewWith<K, V>(
         mapSize = { map.size },
         mapGet = { k -> map[k] },
         mapContains = { k -> map.containsKey(k) },
@@ -146,8 +146,8 @@ internal fun <K, V> createJsMapImmutableViewFrom(map: Map<K, V>): JsReadonlyMap<
         forEach = { cb, t -> forEach(cb, t ?: map) }
     )
 
-internal fun <K, V> createJsMapMutableViewFrom(map: MutableMap<K, V>): JsMap<K, V> =
-    createJsMapImmutableViewWith<K, V>(
+internal fun <K, V> createJsMapViewFrom(map: MutableMap<K, V>): JsMap<K, V> =
+    createJsMapViewWith<K, V>(
         mapSize = { map.size },
         mapGet = { k -> map[k] },
         mapContains = { k -> map.containsKey(k) },
@@ -161,7 +161,7 @@ internal fun <K, V> createJsMapMutableViewFrom(map: MutableMap<K, V>): JsMap<K, 
     )
 
 @Suppress("UNUSED_VARIABLE", "UNUSED_PARAMETER")
-private fun <K, V> createJsMapImmutableViewWith(
+private fun <K, V> createJsMapViewWith(
    mapSize: () -> Int,
    mapGet: (K) -> V?,
    mapContains: (K) -> Boolean,
