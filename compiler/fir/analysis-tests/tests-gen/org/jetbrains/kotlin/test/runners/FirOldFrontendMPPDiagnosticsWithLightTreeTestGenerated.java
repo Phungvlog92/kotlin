@@ -1932,6 +1932,34 @@ public class FirOldFrontendMPPDiagnosticsWithLightTreeTestGenerated extends Abst
     }
 
     @Nested
+    @TestMetadata("compiler/testData/diagnostics/tests/multiplatform/platformCheckers")
+    @TestDataPath("$PROJECT_ROOT")
+    public class PlatformCheckers {
+        @Test
+        public void testAllFilesPresentInPlatformCheckers() throws Exception {
+            KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/diagnostics/tests/multiplatform/platformCheckers"), Pattern.compile("^(.*)\\.kts?$"), Pattern.compile("^(.+)\\.(reversed|fir|ll)\\.kts?$"), TargetBackend.JVM_IR, true);
+        }
+
+        @Test
+        @TestMetadata("contextReceiversTypes.kt")
+        public void testContextReceiversTypes() throws Exception {
+            runTest("compiler/testData/diagnostics/tests/multiplatform/platformCheckers/contextReceiversTypes.kt");
+        }
+
+        @Test
+        @TestMetadata("repeatableAnnotation.kt")
+        public void testRepeatableAnnotation() throws Exception {
+            runTest("compiler/testData/diagnostics/tests/multiplatform/platformCheckers/repeatableAnnotation.kt");
+        }
+
+        @Test
+        @TestMetadata("volatileAnnotation.kt")
+        public void testVolatileAnnotation() throws Exception {
+            runTest("compiler/testData/diagnostics/tests/multiplatform/platformCheckers/volatileAnnotation.kt");
+        }
+    }
+
+    @Nested
     @TestMetadata("compiler/testData/diagnostics/tests/multiplatform/scopes")
     @TestDataPath("$PROJECT_ROOT")
     public class Scopes {
