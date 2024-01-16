@@ -5687,7 +5687,7 @@ internal val KT_DIAGNOSTIC_CONVERTER = KtDiagnosticConverterBuilder.buildConvert
         )
     }
     add(FirJsErrors.JS_STATIC_ON_OVERRIDE) { firDiagnostic ->
-        OverrideCannotBeJsStaticImpl(
+        JsStaticOnOverrideImpl(
             firDiagnostic as KtPsiDiagnostic,
             token,
         )
