@@ -9,11 +9,10 @@ import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
 import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.symbols.KtClassKind.CLASS
 import org.jetbrains.kotlin.analysis.api.symbols.KtClassKind.INTERFACE
+import org.jetbrains.kotlin.backend.konan.objcexport.ObjCClass
 import org.jetbrains.kotlin.backend.konan.objcexport.ObjCExportStub
 import org.jetbrains.kotlin.backend.konan.objcexport.ObjCHeader
-import org.jetbrains.kotlin.backend.konan.objcexport.ObjCProtocol
 import org.jetbrains.kotlin.psi.KtFile
-
 
 
 context(KtAnalysisSession, KtObjCExportSession)
@@ -23,7 +22,7 @@ fun translateToObjCHeader(files: List<KtFile>) : ObjCHeader {
         stubs = declarations,
         classForwardDeclarations = emptySet(),
         protocolForwardDeclarations = declarations
-            .filterIsInstance<ObjCProtocol>()
+            .filterIsInstance<ObjCClass>()
             .flatMap { it.superProtocols }
             .toSet(),
         additionalImports = emptyList(),
