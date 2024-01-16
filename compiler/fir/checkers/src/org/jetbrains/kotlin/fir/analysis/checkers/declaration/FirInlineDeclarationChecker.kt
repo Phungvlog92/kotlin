@@ -35,7 +35,8 @@ import org.jetbrains.kotlin.fir.visitors.FirDefaultVisitor
 import org.jetbrains.kotlin.util.OperatorNameConventions
 import org.jetbrains.kotlin.utils.addToStdlib.shouldNotBeCalled
 
-object FirInlineDeclarationChecker : FirFunctionChecker(MppCheckerKind.Common) {
+// TODO: extract common checker for expect interfaces
+object FirInlineDeclarationChecker : FirFunctionChecker(MppCheckerKind.Platform) {
     override fun check(declaration: FirFunction, context: CheckerContext, reporter: DiagnosticReporter) {
         if (!declaration.isInline) {
             checkParametersInNotInline(declaration, context, reporter)

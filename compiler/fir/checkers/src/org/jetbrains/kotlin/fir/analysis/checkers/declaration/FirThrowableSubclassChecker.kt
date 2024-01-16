@@ -18,7 +18,8 @@ import org.jetbrains.kotlin.fir.declarations.utils.isLocal
 import org.jetbrains.kotlin.fir.declarations.utils.superConeTypes
 import org.jetbrains.kotlin.fir.types.ConeErrorType
 
-object FirThrowableSubclassChecker : FirClassChecker(MppCheckerKind.Common) {
+// TODO: extract common checker for expect interfaces
+object FirThrowableSubclassChecker : FirClassChecker(MppCheckerKind.Platform) {
     override fun check(declaration: FirClass, context: CheckerContext, reporter: DiagnosticReporter) {
         if (!declaration.hasThrowableSupertype(context))
             return

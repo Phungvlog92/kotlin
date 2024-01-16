@@ -15,7 +15,8 @@ import org.jetbrains.kotlin.fir.declarations.FirProperty
 import org.jetbrains.kotlin.fir.declarations.utils.hasBackingField
 import org.jetbrains.kotlin.fir.declarations.utils.isInline
 
-object FirInlinePropertyChecker : FirPropertyChecker(MppCheckerKind.Common) {
+// TODO: extract common checker for expect interfaces
+object FirInlinePropertyChecker : FirPropertyChecker(MppCheckerKind.Platform) {
     override fun check(declaration: FirProperty, context: CheckerContext, reporter: DiagnosticReporter) {
         if (declaration.getter?.isInline != true && declaration.setter?.isInline != true) return
 

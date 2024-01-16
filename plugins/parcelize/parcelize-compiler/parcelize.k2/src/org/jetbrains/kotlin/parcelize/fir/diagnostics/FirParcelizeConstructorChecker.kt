@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.toAnnotationClassId
 import org.jetbrains.kotlin.parcelize.ParcelizeNames
 
-object FirParcelizeConstructorChecker : FirConstructorChecker(MppCheckerKind.Common) {
+object FirParcelizeConstructorChecker : FirConstructorChecker(MppCheckerKind.Platform) {
     override fun check(declaration: FirConstructor, context: CheckerContext, reporter: DiagnosticReporter) {
         if (!declaration.isPrimary) return
         val source = declaration.source ?: return

@@ -33,7 +33,7 @@ import org.jetbrains.kotlin.fir.types.*
  * @see org.jetbrains.kotlin.resolve.checkers.MissingDependencySupertypeChecker
  */
 object FirMissingDependencySupertypeChecker {
-    object ForDeclarations : FirBasicDeclarationChecker(MppCheckerKind.Common) {
+    object ForDeclarations : FirBasicDeclarationChecker(MppCheckerKind.Platform) {
         override fun check(declaration: FirDeclaration, context: CheckerContext, reporter: DiagnosticReporter) {
             if (declaration is FirClass) {
                 checkSuperTypes(declaration.symbol, declaration.source, reporter, context)
@@ -49,7 +49,7 @@ object FirMissingDependencySupertypeChecker {
         }
     }
 
-    object ForQualifiedAccessExpressions : FirQualifiedAccessExpressionChecker(MppCheckerKind.Common) {
+    object ForQualifiedAccessExpressions : FirQualifiedAccessExpressionChecker(MppCheckerKind.Platform) {
         override fun check(expression: FirQualifiedAccessExpression, context: CheckerContext, reporter: DiagnosticReporter) {
             val source = expression.source
 

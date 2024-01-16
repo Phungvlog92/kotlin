@@ -25,7 +25,8 @@ import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.JsStandardClassIds
 
 internal abstract class FirJsAbstractNativeAnnotationChecker(private val requiredAnnotation: ClassId) : FirSimpleFunctionChecker(
-    MppCheckerKind.Common) {
+    MppCheckerKind.Common
+) {
     protected fun FirFunction.hasRequiredAnnotation(context: CheckerContext) = hasAnnotation(requiredAnnotation, context.session)
 
     override fun check(declaration: FirSimpleFunction, context: CheckerContext, reporter: DiagnosticReporter) {

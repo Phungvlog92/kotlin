@@ -34,7 +34,7 @@ import org.jetbrains.kotlin.util.OperatorNameConventions
  * but there's a member in ConcurrentHashMap with acceptable signature that delegates to `containsValue` instead,
  * leading to an unexpected result. See KT-18053
  */
-object FirJvmInconsistentOperatorFromJavaCallChecker : FirFunctionCallChecker(MppCheckerKind.Common) {
+object FirJvmInconsistentOperatorFromJavaCallChecker : FirFunctionCallChecker(MppCheckerKind.Platform) {
     private val CONCURRENT_HASH_MAP_CALLABLE_ID = CallableId(
         ClassId.fromString("java/util/concurrent/ConcurrentHashMap"),
         OperatorNameConventions.CONTAINS
