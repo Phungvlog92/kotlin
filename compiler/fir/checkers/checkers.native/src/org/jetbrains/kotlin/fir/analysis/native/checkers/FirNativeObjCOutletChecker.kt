@@ -7,6 +7,7 @@ package org.jetbrains.kotlin.fir.analysis.native.checkers
 
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
+import org.jetbrains.kotlin.fir.analysis.checkers.FirCheckerWithMppKind
 import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirClassChecker
@@ -22,7 +23,21 @@ import org.jetbrains.kotlin.fir.types.coneType
 import org.jetbrains.kotlin.name.NativeStandardInteropNames.objCOutletClassId
 
 // TODO: extract common checker for expect interfaces
-object FirNativeObjCOutletChecker : FirClassChecker(MppCheckerKind.Platform) {
+sealed class FirNativeObjCOutletChecker(mppKind: MppCheckerKind) : FirClassChecker(mppKind) {
+    object Regular : FirNativeObjCOutletChecker(MppCheckerKind.Platform) {
+        override fun check(declaration: FirClass, context: CheckerContext, reporter: DiagnosticReporter) {
+            if (declaration.isExpect) return
+            super.check(declaration, context, reporter)
+        }
+    }
+
+    object ForExpectClass : FirNativeObjCOutletChecker(MppCheckerKind.Common) {
+        override fun check(declaration: FirClass, context: CheckerContext, reporter: DiagnosticReporter) {
+            if (!declaration.isExpect) return
+            super.check(declaration, context, reporter)
+        }
+    }
+
     override fun check(declaration: FirClass, context: CheckerContext, reporter: DiagnosticReporter) {
         val session = context.session
 

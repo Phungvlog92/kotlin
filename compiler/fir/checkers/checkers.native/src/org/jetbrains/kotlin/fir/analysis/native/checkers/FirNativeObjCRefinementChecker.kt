@@ -14,15 +14,25 @@ import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirCallableDeclara
 import org.jetbrains.kotlin.fir.analysis.checkers.unsubstitutedScope
 import org.jetbrains.kotlin.fir.analysis.diagnostics.native.FirNativeErrors.REDUNDANT_SWIFT_REFINEMENT
 import org.jetbrains.kotlin.fir.declarations.*
+import org.jetbrains.kotlin.fir.declarations.utils.isExpect
 import org.jetbrains.kotlin.fir.expressions.FirAnnotation
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 
-// TODO: extract common checker for expect interfaces
-object FirNativeObjCRefinementChecker : FirCallableDeclarationChecker(MppCheckerKind.Platform) {
+sealed class FirNativeObjCRefinementChecker(mppKind: MppCheckerKind) : FirCallableDeclarationChecker(mppKind) {
+    object Regular : FirNativeObjCRefinementChecker(MppCheckerKind.Platform) {
+        override fun check(declaration: FirCallableDeclaration, context: CheckerContext, reporter: DiagnosticReporter) {
+            if ((context.containingDeclarations.last() as? FirClass)?.isExpect == true) return
+            super.check(declaration, context, reporter)
+        }
+    }
 
-    val hidesFromObjCClassId = ClassId.topLevel(FqName("kotlin.native.HidesFromObjC"))
-    val refinesInSwiftClassId = ClassId.topLevel(FqName("kotlin.native.RefinesInSwift"))
+    object ForExpectClass : FirNativeObjCRefinementChecker(MppCheckerKind.Common) {
+        override fun check(declaration: FirCallableDeclaration, context: CheckerContext, reporter: DiagnosticReporter) {
+            if ((context.containingDeclarations.last() as? FirClass)?.isExpect != true) return
+            super.check(declaration, context, reporter)
+        }
+    }
 
     override fun check(declaration: FirCallableDeclaration, context: CheckerContext, reporter: DiagnosticReporter) {
         if (declaration !is FirSimpleFunction && declaration !is FirProperty) return
@@ -67,5 +77,10 @@ object FirNativeObjCRefinementChecker : FirCallableDeclarationChecker(MppChecker
             }
         }
         return objCAnnotations to swiftAnnotations
+    }
+
+    companion object {
+        val hidesFromObjCClassId = ClassId.topLevel(FqName("kotlin.native.HidesFromObjC"))
+        val refinesInSwiftClassId = ClassId.topLevel(FqName("kotlin.native.RefinesInSwift"))
     }
 }

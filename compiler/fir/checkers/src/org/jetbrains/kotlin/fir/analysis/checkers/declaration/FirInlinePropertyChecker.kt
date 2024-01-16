@@ -11,12 +11,28 @@ import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
+import org.jetbrains.kotlin.fir.declarations.FirFunction
 import org.jetbrains.kotlin.fir.declarations.FirProperty
+import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.utils.hasBackingField
+import org.jetbrains.kotlin.fir.declarations.utils.isExpect
 import org.jetbrains.kotlin.fir.declarations.utils.isInline
 
-// TODO: extract common checker for expect interfaces
-object FirInlinePropertyChecker : FirPropertyChecker(MppCheckerKind.Platform) {
+sealed class FirInlinePropertyChecker(mppKind: MppCheckerKind) : FirPropertyChecker(mppKind) {
+    object Regular : FirInlinePropertyChecker(MppCheckerKind.Platform) {
+        override fun check(declaration: FirProperty, context: CheckerContext, reporter: DiagnosticReporter) {
+            if ((context.containingDeclarations.last() as? FirRegularClass)?.isExpect == true) return
+            super.check(declaration, context, reporter)
+        }
+    }
+
+    object ForExpectClass : FirInlinePropertyChecker(MppCheckerKind.Common) {
+        override fun check(declaration: FirProperty, context: CheckerContext, reporter: DiagnosticReporter) {
+            if ((context.containingDeclarations.last() as? FirRegularClass)?.isExpect != true) return
+            super.check(declaration, context, reporter)
+        }
+    }
+
     override fun check(declaration: FirProperty, context: CheckerContext, reporter: DiagnosticReporter) {
         if (declaration.getter?.isInline != true && declaration.setter?.isInline != true) return
 

@@ -15,8 +15,8 @@ import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirRegularClassChecker
 import org.jetbrains.kotlin.fir.analysis.checkers.getAllowedAnnotationTargets
 import org.jetbrains.kotlin.fir.analysis.diagnostics.native.FirNativeErrors
-import org.jetbrains.kotlin.fir.analysis.native.checkers.FirNativeObjCRefinementChecker.hidesFromObjCClassId
-import org.jetbrains.kotlin.fir.analysis.native.checkers.FirNativeObjCRefinementChecker.refinesInSwiftClassId
+import org.jetbrains.kotlin.fir.analysis.native.checkers.FirNativeObjCRefinementChecker.Companion.hidesFromObjCClassId
+import org.jetbrains.kotlin.fir.analysis.native.checkers.FirNativeObjCRefinementChecker.Companion.refinesInSwiftClassId
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.toAnnotationClassId
 import org.jetbrains.kotlin.fir.expressions.FirAnnotation

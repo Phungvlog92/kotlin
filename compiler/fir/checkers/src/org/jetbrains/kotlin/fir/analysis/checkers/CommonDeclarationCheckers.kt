@@ -57,7 +57,8 @@ object CommonDeclarationCheckers : DeclarationCheckers() {
             FirContractChecker,
             FirFunctionParameterChecker,
             FirFunctionReturnChecker,
-            FirInlineDeclarationChecker,
+            FirInlineDeclarationChecker.Regular,
+            FirInlineDeclarationChecker.ForExpectClass,
             FirNonMemberFunctionsChecker,
             FirSuspendLimitationsChecker,
         )
@@ -90,7 +91,8 @@ object CommonDeclarationCheckers : DeclarationCheckers() {
             FirLocalExtensionPropertyChecker,
             ContractSyntaxV2PropertyChecker,
             FirVolatileAnnotationChecker,
-            FirInlinePropertyChecker,
+            FirInlinePropertyChecker.Regular,
+            FirInlinePropertyChecker.ForExpectClass,
             FirContextReceiversPropertyBackingFieldChecker
         )
 

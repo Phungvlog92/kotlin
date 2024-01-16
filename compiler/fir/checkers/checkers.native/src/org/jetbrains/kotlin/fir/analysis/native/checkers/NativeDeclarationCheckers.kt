@@ -20,7 +20,8 @@ object NativeDeclarationCheckers : DeclarationCheckers() {
 
     override val callableDeclarationCheckers: Set<FirCallableDeclarationChecker>
         get() = setOf(
-            FirNativeObjCRefinementChecker,
+            FirNativeObjCRefinementChecker.Regular,
+            FirNativeObjCRefinementChecker.ForExpectClass,
             FirNativeObjCNameCallableChecker.Regular,
             FirNativeObjCNameCallableChecker.ForExpectClass,
         )
@@ -31,7 +32,8 @@ object NativeDeclarationCheckers : DeclarationCheckers() {
             FirNativeObjCRefinementOverridesChecker.ForExpectClass,
             FirNativeObjCNameOverridesChecker.Regular,
             FirNativeObjCNameOverridesChecker.ForExpectClass,
-            FirNativeObjCOutletChecker,
+            FirNativeObjCOutletChecker.Regular,
+            FirNativeObjCOutletChecker.ForExpectClass,
             FirNativeObjCActionChecker,
             FirNativeObjCOverrideInitChecker,
         )
