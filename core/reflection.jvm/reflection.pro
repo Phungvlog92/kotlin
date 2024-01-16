@@ -4,6 +4,7 @@
 -dontoptimize
 -dontobfuscate
 -dontprocesskotlinmetadata
+-keep class kotlin.Metadata
 # -dontshrink
 
 -keep public class kotlin.reflect.* { *; }

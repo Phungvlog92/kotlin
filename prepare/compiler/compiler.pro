@@ -80,6 +80,7 @@
 #-libraryjars '<tools.jar>'
 
 -dontprocesskotlinmetadata
+-keep class kotlin.Metadata
 -dontoptimize
 -dontobfuscate
 
