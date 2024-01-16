@@ -142,7 +142,7 @@ public annotation class ExperimentalJsReflectionCreateInstance
  */
 @RequiresOptIn(level = RequiresOptIn.Level.WARNING)
 @Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.CLASS)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @MustBeDocumented
 @SinceKotlin("1.9")
 public annotation class ExperimentalJsCollectionsApi
