@@ -395,7 +395,20 @@ open class FirExpressionsResolveTransformer(transformer: FirAbstractBodyResolveT
         transformFunctionCallInternal(functionCall, data, CallResolutionMode.REGULAR)
 
     internal enum class CallResolutionMode {
-        REGULAR, PROVIDE_DELEGATE, OPTION_FOR_AUGMENTED_ASSIGNMENT,
+        REGULAR,
+
+        /**
+         * For PROVIDE_DELEGATE we skip transforming explicit receiver of the call since it's already been resolved
+         * at [org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirDeclarationsResolveTransformer.transformPropertyAccessorsWithDelegate]
+         */
+        PROVIDE_DELEGATE,
+
+        /**
+         * When we're resolving an operator like `a += b` we try to resolve it with different options of desugaring like
+         * `a = a.plus(b)` and `a.plusAssign(b)` until find something that looks successful.
+         * But at this stage, we skip resolving receiver arguments and completion in any form.
+         */
+        OPTION_FOR_AUGMENTED_ASSIGNMENT,
     }
 
     internal fun transformFunctionCallInternal(
