@@ -27,7 +27,7 @@ object FirOptInUsageAccessChecker : FirBasicExpressionChecker() {
 
         if (expression.isLhsOfAssignment(context)) return
 
-        val resolvedSymbol = expression.toReference()?.toResolvedBaseSymbol() ?: return
+        val resolvedSymbol = expression.toReference(context.session)?.toResolvedBaseSymbol() ?: return
 
         with(FirOptInUsageBaseChecker) {
             when {
