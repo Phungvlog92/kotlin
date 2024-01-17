@@ -25,10 +25,10 @@ internal fun runCommand(
 ): String {
     val runResult = assembleAndRunProcess(command, logger, processConfiguration)
     check(runResult.retCode == 0) {
-        errorHandler?.invoke(runResult.retCode, runResult.fullOutput, runResult.process) ?: createErrorMessage(command, runResult)
+        errorHandler?.invoke(runResult.retCode, runResult.output, runResult.process) ?: createErrorMessage(command, runResult)
     }
 
-    return runResult.outputText
+    return runResult.output
 }
 
 /**
@@ -56,22 +56,27 @@ internal fun runCommandWithFallback(
 ): String {
     val runResult = assembleAndRunProcess(command, logger, processConfiguration)
     return if (runResult.retCode != 0) {
-        when (val fallbackOption = fallback(runResult.retCode, runResult.fullOutput, runResult.process)) {
+        when (val fallbackOption = fallback(runResult.retCode, runResult.output, runResult.process)) {
             is CommandFallback.Action -> fallbackOption.fallback
             is CommandFallback.Error -> error(fallbackOption.error ?: createErrorMessage(command, runResult))
         }
     } else {
-        runResult.outputText
+        runResult.output
     }
 }
 
 private data class RunProcessResult(
-    val outputText: String,
-    val errorText: String,
+    val stdOut: String,
+    val stdErr: String,
     val retCode: Int,
     val process: Process,
 ) {
-    val fullOutput: String get() = listOf(outputText, errorText).filter { it.isNotBlank() }.joinToString("\n")
+    val output: String
+        get() = if (retCode != 0) {
+            stdErr.ifBlank { stdOut }
+        } else {
+            stdOut.ifBlank { stdErr }
+        }
 }
 
 private fun assembleAndRunProcess(
@@ -118,9 +123,9 @@ private fun createErrorMessage(command: List<String>, runResult: RunProcessResul
     return """
            |Executing of '${command.joinToString(" ")}' failed with code ${runResult.retCode} and message: 
            |
-           |${runResult.outputText}
+           |${runResult.stdOut}
            |
-           |${runResult.errorText}
+           |${runResult.stdErr}
            |
            """.trimMargin()
 }
