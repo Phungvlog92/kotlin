@@ -28499,6 +28499,12 @@ public class LLFirPreresolvedReversedDiagnosticCompilerFE10TestDataTestGenerated
             }
 
             @Test
+            @TestMetadata("intersectionOverridesIntersection.kt")
+            public void testIntersectionOverridesIntersection() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/override/intersectionOverridesIntersection.kt");
+            }
+
+            @Test
             @TestMetadata("InvisiblePotentialOverride.kt")
             public void testInvisiblePotentialOverride() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/override/InvisiblePotentialOverride.kt");
