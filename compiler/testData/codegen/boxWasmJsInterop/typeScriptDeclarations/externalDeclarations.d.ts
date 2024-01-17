@@ -12,18 +12,28 @@ declare namespace not.exported.org.second {
 }
 declare namespace not.exported.org.second {
     const Foo: {
-        get bar(): number;
+        get bar(): not.exported.Parent.MentionedNested;
         get baz(): string;
     } & not.exported.Baz<string>;
 }
 declare namespace not.exported {
     interface Baz<T> extends not.exported.Bar {
         readonly baz?: T;
-        readonly bar: number;
+        readonly bar: not.exported.Parent.MentionedNested;
+    }
+}
+declare namespace not.exported.Parent {
+    interface MentionedNested {
+        readonly value: not.exported.MentionedParent;
     }
 }
 declare namespace not.exported {
     interface Bar {
-        readonly bar: number;
+        readonly bar: not.exported.Parent.MentionedNested;
+    }
+}
+declare namespace not.exported {
+    class MentionedParent {
+        constructor();
     }
 }

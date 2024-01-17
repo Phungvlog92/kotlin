@@ -3,8 +3,20 @@
 // MODULE: main
 
 // FILE: first.kt
+external class MentionedParent {
+    interface Nested {
+        val value: Int
+    }
+}
+
+external class Parent {
+    interface MentionedNested {
+        val value: MentionedParent
+    }
+}
+
 external interface Bar {
-    val bar: Int
+    val bar: Parent.MentionedNested
 }
 
 external interface Baz<T: JsAny?> : Bar {
@@ -18,7 +30,7 @@ import Bar
 import Baz
 
 external object Foo : Baz<JsString> {
-    override val bar: Int
+    override val bar: Parent.MentionedNested
     override val baz: JsString
 }
 
