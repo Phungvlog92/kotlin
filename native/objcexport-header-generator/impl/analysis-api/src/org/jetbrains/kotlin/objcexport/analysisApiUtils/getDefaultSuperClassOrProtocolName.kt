@@ -4,6 +4,8 @@ import org.jetbrains.kotlin.backend.konan.objcexport.ObjCExportClassOrProtocolNa
 import org.jetbrains.kotlin.objcexport.KtObjCExportSession
 import org.jetbrains.kotlin.objcexport.getObjCKotlinStdlibClassOrProtocolName
 
+internal const val defaultSuperClass = "Base"
+
 /**
  * Some entities like top level functions are wrapped into classes with Base super class.
  *
@@ -13,5 +15,5 @@ import org.jetbrains.kotlin.objcexport.getObjCKotlinStdlibClassOrProtocolName
  */
 context(KtObjCExportSession)
 internal fun getDefaultSuperClassOrProtocolName(): ObjCExportClassOrProtocolName {
-    return "Base".getObjCKotlinStdlibClassOrProtocolName()
+    return defaultSuperClass.getObjCKotlinStdlibClassOrProtocolName()
 }

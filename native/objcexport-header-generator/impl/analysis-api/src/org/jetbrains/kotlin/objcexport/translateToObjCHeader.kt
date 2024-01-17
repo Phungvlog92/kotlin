@@ -9,17 +9,29 @@ import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
 import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.symbols.KtClassKind.*
 import org.jetbrains.kotlin.backend.konan.objcexport.*
+import org.jetbrains.kotlin.objcexport.analysisApiUtils.errorForwardClass
+import org.jetbrains.kotlin.objcexport.analysisApiUtils.errorInterface
+import org.jetbrains.kotlin.objcexport.analysisApiUtils.hasErrorTypes
 import org.jetbrains.kotlin.psi.KtFile
 
 
 context(KtAnalysisSession, KtObjCExportSession)
 fun translateToObjCHeader(files: List<KtFile>): ObjCHeader {
-    val declarations = files.flatMap { ktFile -> ktFile.translateToObjCExportStubs() }
+
+    val declarations = files.flatMap { ktFile -> ktFile.translateToObjCExportStubs() }.toMutableList()
+    val hasErrorTypes = declarations.hasErrorTypes()
+    val classForwardDeclarations = getClassForwardDeclarations(declarations).toMutableSet()
+    val protocolForwardDeclarations = getProtocolForwardDeclarations(declarations)
+
+    if (hasErrorTypes) {
+        declarations.add(errorInterface)
+        classForwardDeclarations.add(errorForwardClass)
+    }
 
     return ObjCHeader(
         stubs = declarations,
-        classForwardDeclarations = getClassForwardDeclarations(declarations),
-        protocolForwardDeclarations = getProtocolForwardDeclarations(declarations),
+        classForwardDeclarations = classForwardDeclarations,
+        protocolForwardDeclarations = protocolForwardDeclarations,
         additionalImports = emptyList(),
         exportKDoc = configuration.exportKDoc
     )

@@ -6,6 +6,8 @@ import org.jetbrains.kotlin.backend.konan.objcexport.*
 import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.objcexport.analysisApiUtils.isError
+import org.jetbrains.kotlin.objcexport.analysisApiUtils.objCErrorType
 
 /**
  * [org.jetbrains.kotlin.backend.konan.objcexport.ObjCExportTranslatorImpl.mapReferenceType]
@@ -27,7 +29,9 @@ private fun KtType.mapToReferenceTypeIgnoringNullability(): ObjCNonNullReference
     val isInlined = false //TODO: classDescriptor.isInlined()
     val isHidden = classId in hiddenTypes
 
-    return if (isAny || isHidden || isInlined) {
+    return if (isError) {
+        objCErrorType
+    } else if (isAny || isHidden || isInlined) {
         ObjCIdType
     } else {
         /**
