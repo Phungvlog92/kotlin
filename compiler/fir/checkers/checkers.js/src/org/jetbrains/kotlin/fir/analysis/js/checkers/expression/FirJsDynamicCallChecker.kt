@@ -63,7 +63,7 @@ object FirJsDynamicCallChecker : FirQualifiedAccessExpressionChecker() {
 
     private val FirCall.isArrayAccessWithMultipleIndices: Boolean
         get() {
-            val callee = calleeReference as? FirNamedReference
+            val callee = toReference() as? FirNamedReference
                 ?: return false
 
             if (callee.source?.kind != KtFakeSourceElementKind.ArrayAccessNameReference) {
