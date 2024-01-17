@@ -5,10 +5,8 @@
 
 package org.jetbrains.kotlin.fir.declarations
 
-import org.jetbrains.kotlin.descriptors.annotations.AnnotationUseSiteTarget
 import org.jetbrains.kotlin.fir.FirAnnotationContainer
 import org.jetbrains.kotlin.fir.FirSession
-import org.jetbrains.kotlin.fir.containingClassLookupTag
 import org.jetbrains.kotlin.fir.expressions.*
 import org.jetbrains.kotlin.fir.references.FirErrorNamedReference
 import org.jetbrains.kotlin.fir.references.FirResolvedNamedReference
@@ -43,16 +41,20 @@ fun FirAnnotation.toAnnotationClassIdSafe(session: FirSession): ClassId? =
 fun FirAnnotation.toAnnotationClassLikeSymbol(session: FirSession): FirClassLikeSymbol<*>? =
     toAnnotationLookupTag(session)?.toSymbol(session)
 
-private fun FirAnnotation.toAnnotationClass(session: FirSession): FirRegularClass? =
+fun FirAnnotation.toAnnotationClass(session: FirSession): FirRegularClass? =
     toAnnotationClassLikeSymbol(session)?.fir as? FirRegularClass
 
-// TODO: this is temporary solution, we need something better
 private val FirExpression.callableNameOfMetaAnnotationArgument: Name?
-    get() =
-        (this as? FirQualifiedAccessExpression)?.let {
-            val callableSymbol = it.calleeReference.toResolvedCallableSymbol()
+    get() = when (this) {
+        is FirQualifiedAccessExpression -> {
+            val callableSymbol = calleeReference.toResolvedCallableSymbol()
             callableSymbol?.callableId?.callableName
         }
+        is FirEnumEntryDeserializedAccessExpression -> {
+            enumEntryName
+        }
+        else -> null
+    }
 
 private val sourceName = Name.identifier("SOURCE")
 
@@ -68,59 +70,6 @@ fun List<FirAnnotation>.nonSourceAnnotations(session: FirSession): List<FirAnnot
 
 fun FirAnnotationContainer.nonSourceAnnotations(session: FirSession): List<FirAnnotation> =
     annotations.nonSourceAnnotations(session)
-
-fun FirAnnotation.useSiteTargetsFromMetaAnnotation(session: FirSession): Set<AnnotationUseSiteTarget> {
-    return toAnnotationClass(session)
-        ?.annotations
-        ?.find { it.toAnnotationClassIdSafe(session) == StandardClassIds.Annotations.Target }
-        ?.findUseSiteTargets()
-        ?: DEFAULT_USE_SITE_TARGETS
-}
-
-private fun FirAnnotation.findUseSiteTargets(): Set<AnnotationUseSiteTarget> = buildSet {
-    forEachAnnotationTarget {
-        USE_SITE_TARGET_NAME_MAP[it.identifier]?.let { addAll(it) }
-    }
-}
-
-fun FirAnnotation.forEachAnnotationTarget(action: (Name) -> Unit) {
-    fun take(arg: FirExpression) {
-        if (arg !is FirQualifiedAccessExpression) return@take
-        val callableSymbol = arg.calleeReference.toResolvedCallableSymbol() ?: return@take
-        if (callableSymbol.containingClassLookupTag()?.classId == StandardClassIds.AnnotationTarget) {
-            action(callableSymbol.callableId.callableName)
-        }
-    }
-
-    if (this is FirAnnotationCall) {
-        for (arg in argumentList.arguments) {
-            arg.unwrapAndFlattenArgument(flattenArrays = true).forEach(::take)
-        }
-    } else {
-        argumentMapping.mapping[StandardClassIds.Annotations.ParameterNames.targetAllowedTargets]
-            ?.unwrapAndFlattenArgument(flattenArrays = true)
-            ?.forEach(::take)
-    }
-}
-
-
-// See [org.jetbrains.kotlin.descriptors.annotations.KotlinTarget.USE_SITE_MAPPING] (it's in reverse)
-private val USE_SITE_TARGET_NAME_MAP = mapOf(
-    "FIELD" to setOf(AnnotationUseSiteTarget.FIELD, AnnotationUseSiteTarget.PROPERTY_DELEGATE_FIELD),
-    "FILE" to setOf(AnnotationUseSiteTarget.FILE),
-    "PROPERTY" to setOf(AnnotationUseSiteTarget.PROPERTY),
-    "PROPERTY_GETTER" to setOf(AnnotationUseSiteTarget.PROPERTY_GETTER),
-    "PROPERTY_SETTER" to setOf(AnnotationUseSiteTarget.PROPERTY_SETTER),
-    "VALUE_PARAMETER" to setOf(
-        AnnotationUseSiteTarget.CONSTRUCTOR_PARAMETER,
-        AnnotationUseSiteTarget.RECEIVER,
-        AnnotationUseSiteTarget.SETTER_PARAMETER,
-    ),
-)
-
-// See [org.jetbrains.kotlin.descriptors.annotations.KotlinTarget] (the second argument of each entry)
-private val DEFAULT_USE_SITE_TARGETS: Set<AnnotationUseSiteTarget> =
-    USE_SITE_TARGET_NAME_MAP.values.fold(setOf<AnnotationUseSiteTarget>()) { a, b -> a + b } - setOf(AnnotationUseSiteTarget.FILE)
 
 fun FirDeclaration.hasAnnotation(classId: ClassId, session: FirSession): Boolean {
     return annotations.hasAnnotation(classId, session)
