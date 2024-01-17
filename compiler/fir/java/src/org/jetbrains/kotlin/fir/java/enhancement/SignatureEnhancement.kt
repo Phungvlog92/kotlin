@@ -201,13 +201,19 @@ class FirSignatureEnhancement(
         name: Name?
     ): FirFunctionSymbol<*> {
         val firMethod = original.fir
+        val isIntersectionOverride = original is FirIntersectionOverrideFunctionSymbol
 
-        if (!firMethod.isJava) {
+        if (!firMethod.isJava &&
+            // Intersection overrides with Java and Kotlin overridden symbols need to be enhanced so that we get non-flexible types
+            // in the signature.
+            // This is required for @PurelyImplements to work properly.
+            !(isIntersectionOverride && original.unwrapFakeOverrides<FirFunctionSymbol<*>>().origin is FirDeclarationOrigin.Enhancement)
+        ) {
             return original
         }
 
         val enhancedParameters = enhanceTypeParameterBoundsForMethod(firMethod)
-        return enhanceMethod(firMethod, original.callableId, name, enhancedParameters)
+        return enhanceMethod(firMethod, original.callableId, name, enhancedParameters, isIntersectionOverride)
     }
 
     /**
@@ -219,6 +225,7 @@ class FirSignatureEnhancement(
         methodId: CallableId,
         name: Name?,
         enhancedTypeParameters: List<FirTypeParameterRef>?,
+        isIntersectionOverride: Boolean,
     ): FirFunctionSymbol<*> {
         val predefinedEnhancementInfo =
             SignatureBuildingComponents.signature(
@@ -253,7 +260,7 @@ class FirSignatureEnhancement(
             if (hasReceiver && index == 0) continue
             enhancedValueParameterTypes += enhanceValueParameterType(
                 firMethod, overriddenMembers, hasReceiver,
-                defaultQualifiers, predefinedEnhancementInfo, valueParameter as FirJavaValueParameter,
+                defaultQualifiers, predefinedEnhancementInfo, valueParameter,
                 if (hasReceiver) index - 1 else index
             )
         }
@@ -263,6 +270,8 @@ class FirSignatureEnhancement(
 
         val typeParameterSubstitutionMap = mutableMapOf<FirTypeParameterSymbol, ConeKotlinType>()
         var typeParameterSubstitutor: ConeSubstitutorByMap? = null
+        val declarationOrigin =
+            if (isIntersectionOverride) FirDeclarationOrigin.IntersectionOverride else FirDeclarationOrigin.Enhancement
 
         val function = when (firMethod) {
             is FirConstructor -> {
@@ -300,7 +309,7 @@ class FirSignatureEnhancement(
                     source = firMethod.source
                     moduleData = this@FirSignatureEnhancement.moduleData
                     resolvePhase = FirResolvePhase.ANALYZED_DEPENDENCIES
-                    origin = FirDeclarationOrigin.Enhancement
+                    origin = declarationOrigin
                     // TODO: we should set a new origin / containing declaration to type parameters (KT-60440)
                     this.typeParameters += (enhancedTypeParameters ?: firMethod.typeParameters)
                 }
@@ -310,7 +319,7 @@ class FirSignatureEnhancement(
                 FirSimpleFunctionBuilder().apply {
                     source = firMethod.source
                     moduleData = this@FirSignatureEnhancement.moduleData
-                    origin = FirDeclarationOrigin.Enhancement
+                    origin = declarationOrigin
 
                     this.name = name!!
                     status = firMethod.status
@@ -324,7 +333,7 @@ class FirSignatureEnhancement(
 
                         // TODO: we probably shouldn't build a copy second time. See performFirstRoundOfBoundsResolution (KT-60446)
                         val newTypeParameter = buildTypeParameterCopy(typeParameter) {
-                            origin = FirDeclarationOrigin.Enhancement
+                            origin = declarationOrigin
                             symbol = FirTypeParameterSymbol()
                             containingDeclarationSymbol = functionSymbol
                         }
@@ -372,7 +381,7 @@ class FirSignatureEnhancement(
                     source = valueParameter.source
                     containingFunctionSymbol = functionSymbol
                     moduleData = this@FirSignatureEnhancement.moduleData
-                    origin = FirDeclarationOrigin.Enhancement
+                    origin = declarationOrigin
                     returnTypeRef = enhancedReturnType.withReplacedConeType(
                         typeParameterSubstitutor?.substituteOrNull(enhancedReturnType.coneType)
                     )
@@ -590,7 +599,7 @@ class FirSignatureEnhancement(
         hasReceiver: Boolean,
         defaultQualifiers: JavaTypeQualifiersByElementType?,
         predefinedEnhancementInfo: PredefinedFunctionEnhancementInfo?,
-        ownerParameter: FirJavaValueParameter,
+        ownerParameter: FirValueParameter,
         index: Int
     ): FirResolvedTypeRef {
         return ownerFunction.enhanceValueParameter(
