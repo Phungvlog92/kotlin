@@ -17,10 +17,12 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
 import org.jetbrains.kotlin.analysis.api.symbols.KtClassKind
 import org.jetbrains.kotlin.analysis.api.symbols.KtClassOrObjectSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KtNamedClassOrObjectSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KtSymbolKind
 import org.jetbrains.kotlin.analysis.api.symbols.pointers.KtSymbolPointer
 import org.jetbrains.kotlin.analysis.api.symbols.sourcePsiSafe
 import org.jetbrains.kotlin.analysis.project.structure.KtModule
+import org.jetbrains.kotlin.asJava.classes.getOutermostClassOrObject
 import org.jetbrains.kotlin.asJava.classes.lazyPub
 import org.jetbrains.kotlin.asJava.elements.KtLightField
 import org.jetbrains.kotlin.asJava.elements.KtLightIdentifier
@@ -34,6 +36,8 @@ import org.jetbrains.kotlin.psi.KtScript
 import org.jetbrains.kotlin.psi.debugText.getDebugText
 import org.jetbrains.kotlin.psi.stubs.KotlinClassOrObjectStub
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
+import org.jetbrains.kotlin.asJava.toLightClass
+import org.jetbrains.kotlin.utils.addToStdlib.ifFalse
 
 abstract class SymbolLightClassForClassLike<SType : KtClassOrObjectSymbol> protected constructor(
     internal val classOrObjectDeclaration: KtClassOrObject?,
@@ -164,14 +168,24 @@ abstract class SymbolLightClassForClassLike<SType : KtClassOrObjectSymbol> prote
     override fun getSupers(): Array<PsiClass> = PsiClassImplUtil.getSupers(this)
     override fun getSuperTypes(): Array<PsiClassType> = PsiClassImplUtil.getSuperTypes(this)
 
-    override fun getContainingClass(): PsiClass? {
+    private val _containingClass: PsiClass? by lazyPub {
         val containingBody = classOrObjectDeclaration?.parent
-        return when (val parent = containingBody?.parent) {
+        return@lazyPub when (val parent = containingBody?.parent) {
             is KtClassOrObject -> parent.toLightClass()
             is KtScript -> parent.toLightClass()
-            else -> null
+            else -> withClassOrObjectSymbol { s ->
+                (s.getContainingSymbol() as? KtNamedClassOrObjectSymbol)?.let { createLightClassNoCache(it, ktModule, manager) }
+            }
         }
     }
+
+    override fun getContainingClass(): PsiClass? = _containingClass
+
+    private val _containingFile: PsiFile? by lazyPub {
+        super.getContainingFile() ?: containingClass?.containingFile
+    }
+
+    override fun getContainingFile(): PsiFile? = _containingFile
 
     abstract override fun getParent(): PsiElement?
     override fun getScope(): PsiElement? = parent
