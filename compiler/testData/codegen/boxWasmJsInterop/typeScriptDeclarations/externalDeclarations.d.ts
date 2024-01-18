@@ -12,28 +12,37 @@ declare namespace not.exported.org.second {
 }
 declare namespace not.exported.org.second {
     const Foo: {
-        get bar(): not.exported.Parent.MentionedNested;
+        get bar(): not.exported.Parent.OneMoreLayer.MentionedNested;
         get baz(): string;
+        get oneMore(): not.exported.Parent.Companion.AnotherMentionedNested;
     } & not.exported.Baz<string>;
 }
 declare namespace not.exported {
     interface Baz<T> extends not.exported.Bar {
         readonly baz?: T;
-        readonly bar: not.exported.Parent.MentionedNested;
+        readonly bar: not.exported.Parent.OneMoreLayer.MentionedNested;
+        readonly oneMore: not.exported.Parent.Companion.AnotherMentionedNested;
     }
 }
-declare namespace not.exported.Parent {
+declare namespace not.exported.Parent.OneMoreLayer {
     interface MentionedNested {
-        readonly value: not.exported.MentionedParent;
+        readonly value: typeof not.exported.MentionedParent;
+    }
+}
+declare namespace not.exported.Parent.Companion {
+    class AnotherMentionedNested {
+        constructor();
+        get value(): string;
     }
 }
 declare namespace not.exported {
     interface Bar {
-        readonly bar: not.exported.Parent.MentionedNested;
+        readonly bar: not.exported.Parent.OneMoreLayer.MentionedNested;
+        readonly oneMore: not.exported.Parent.Companion.AnotherMentionedNested;
     }
 }
 declare namespace not.exported {
-    class MentionedParent {
-        constructor();
-    }
+    const MentionedParent: {
+        get value(): string;
+    };
 }
