@@ -84,7 +84,6 @@ class FunctionInlining(
     private val regenerateInlinedAnonymousObjects: Boolean = false,
     private val inlineArgumentsWithOriginalOffset: Boolean = false,
     private val allowExternalInlining: Boolean = false,
-    private val shouldNotEraseWhenInliningTo: (IrDeclarationParent?) -> Boolean = { false },
 ) : IrElementTransformerVoidWithContext(), BodyLoweringPass {
     private var containerScope: ScopeWithIr? = null
 
@@ -163,13 +162,7 @@ class FunctionInlining(
                 (0 until callSite.typeArgumentsCount).associate {
                     typeParameters[it].symbol to callSite.getTypeArgument(it)
                 }
-
-            val mode = if (shouldNotEraseWhenInliningTo(parent))
-                NonReifiedTypeParameterRemappingMode.SUBSTITUTE
-            else
-                NonReifiedTypeParameterRemappingMode.ERASE
-
-            DeepCopyIrTreeWithSymbolsForInliner(typeArguments, parent, mode)
+            DeepCopyIrTreeWithSymbolsForInliner(typeArguments, parent, NonReifiedTypeParameterRemappingMode.ERASE)
         }
 
         val substituteMap = mutableMapOf<IrValueParameter, IrExpression>()
