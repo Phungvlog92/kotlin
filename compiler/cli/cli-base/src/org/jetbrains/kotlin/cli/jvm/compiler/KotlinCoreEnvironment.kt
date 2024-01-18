@@ -601,20 +601,29 @@ class KotlinCoreEnvironment private constructor(
         }
 
         /**
-         * Resets the application managed by [ApplicationManager]. If [applicationToReset] is specified, [resetApplicationManager] will only
-         * reset the application if it's the expected one. Otherwise, the application will already have been changed to another application.
-         * For example, application disposal can trigger one of the disposables registered via [ApplicationManager.setApplication], which
-         * reset the managed application to the previous application.
+         * Resets the application managed by [ApplicationManager] to `null`. If [applicationToReset] is specified, [resetApplicationManager]
+         * will only reset the application if it's the expected one. Otherwise, the application will already have been changed to another
+         * application. For example, application disposal can trigger one of the disposables registered via
+         * [ApplicationManager.setApplication], which reset the managed application to the previous application.
          */
         @JvmStatic
         fun resetApplicationManager(applicationToReset: Application? = null) {
-            if (applicationToReset != null && applicationToReset != ApplicationManager.getApplication()) {
+            val currentApplication = ApplicationManager.getApplication() ?: return
+            if (applicationToReset != null && applicationToReset != currentApplication) {
                 return
             }
 
-            val ourApplicationField = ApplicationManager::class.java.getDeclaredField("ourApplication")
-            ourApplicationField.isAccessible = true
-            ourApplicationField.set(null, null)
+            try {
+                val ourApplicationField = ApplicationManager::class.java.getDeclaredField("ourApplication")
+                ourApplicationField.isAccessible = true
+                ourApplicationField.set(null, null)
+            } catch (exception: Exception) {
+                // Resetting the application manager is not critical in a production context. If the reflective access fails, we shouldn't
+                // expose the user to the failure.
+                if (currentApplication.isUnitTestMode) {
+                    throw exception
+                }
+            }
         }
 
         @JvmStatic
