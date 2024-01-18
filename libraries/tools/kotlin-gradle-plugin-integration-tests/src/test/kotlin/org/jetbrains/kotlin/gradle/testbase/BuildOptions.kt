@@ -90,7 +90,7 @@ data class BuildOptions(
         val cocoapodsArchs: String? = null,
         val distributionType: String? = null,
         // TODO(Dmitrii Krasnov): we can change false on null, when downloading konan from maven local will be possible KT-63198
-        val distributionDownloadFromMaven: Boolean? = false,
+        val distributionDownloadFromMaven: Boolean? = true,
         val reinstall: Boolean? = null,
         val restrictedDistribution: Boolean? = null,
         val useXcodeMessageStyle: Boolean? = null,
@@ -221,6 +221,8 @@ data class BuildOptions(
         if (stacktraceMode != null) {
             arguments.add("--$stacktraceMode")
         }
+
+        //
 
         konanDataDir?.let {
             arguments.add("-Pkonan.data.dir=${konanDataDir.toAbsolutePath().normalize()}")
