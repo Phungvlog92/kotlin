@@ -18,6 +18,9 @@ import org.jetbrains.kotlin.fir.declarations.impl.FirDefaultPropertySetter
 import org.jetbrains.kotlin.fir.declarations.utils.*
 import org.jetbrains.kotlin.fir.expressions.FirConstExpression
 import org.jetbrains.kotlin.fir.expressions.FirExpression
+import org.jetbrains.kotlin.fir.expressions.calleeReference
+import org.jetbrains.kotlin.fir.references.FirResolvedNamedReference
+import org.jetbrains.kotlin.fir.symbols.impl.FirValueParameterSymbol
 import org.jetbrains.kotlin.fir.types.coneType
 import org.jetbrains.kotlin.fir.types.resolvedType
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
@@ -93,12 +96,22 @@ class Fir2IrLazyProperty(
         with(typeConverter) { fir.returnTypeRef.toIrType() }
     }
 
+    private fun isFakeInitializer(initializer: FirExpression?): Boolean {
+        val resolvedReference = initializer?.calleeReference as? FirResolvedNamedReference ?: return false
+        val resolvedSymbolForInitializer = resolvedReference.resolvedSymbol
+        return if (resolvedSymbolForInitializer is FirValueParameterSymbol) !resolvedSymbolForInitializer.hasDefaultValue else false
+    }
+
     private fun toIrInitializer(initializer: FirExpression?): IrExpressionBody? {
         // Annotations need full initializer information to instantiate them correctly
         return when {
-            containingClass?.classKind?.isAnnotationClass == true -> initializer?.asCompileTimeIrInitializer(
-                components, fir.returnTypeRef.coneType
-            )
+            containingClass?.classKind?.isAnnotationClass == true -> if (isFakeInitializer(initializer)) {
+                null
+            } else {
+                initializer?.asCompileTimeIrInitializer(
+                    components, fir.returnTypeRef.coneType
+                )
+            }
             // Setting initializers to every other class causes some cryptic errors in lowerings
             initializer is FirConstExpression<*> -> {
                 val constType = with(typeConverter) { initializer.resolvedType.toIrType() }
