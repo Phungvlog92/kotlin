@@ -62,11 +62,19 @@ abstract class AbstractPodInstallTask : CocoapodsTask() {
 
         return runCommandWithFallback(podInstallCommand,
                                       logger,
-                                      fallback = { retCode, output, process ->
+                                      fallback = { result ->
+                                          val output = result.stdErr.ifBlank { result.stdOut }
                                           if (output.contains("out-of-date source repos which you can update with `pod repo update` or with `pod install --repo-update`") && updateRepo.not()) {
                                               CommandFallback.Action(runPodInstall(true))
                                           } else {
-                                              CommandFallback.Error(sharedHandleError(podInstallCommand, retCode, output, process))
+                                              CommandFallback.Error(
+                                                  sharedHandleError(
+                                                      podInstallCommand,
+                                                      result.retCode,
+                                                      output,
+                                                      result.process
+                                                  )
+                                              )
                                           }
                                       },
                                       processConfiguration = {
@@ -91,7 +99,7 @@ abstract class AbstractPodInstallTask : CocoapodsTask() {
                |        To check CocoaPods version type 'pod --version' in the terminal
                |        
                |        To install CocoaPods execute 'sudo gem install cocoapods'
-               |        For more information, refer to the documentation: https://kotl.in/uj7jmy
+               |        For more information, refer to the documentation: https://jb.gg/4d842y
                |
             """.trimMargin()
         } else if (error.contains("[Xcodeproj] Unknown object version")) {
@@ -99,10 +107,10 @@ abstract class AbstractPodInstallTask : CocoapodsTask() {
                |'$command' command failed with an exception:
                | $error
                |
-               |        Your CocoaPods installation is outdated or corrupted
+               |        Your CocoaPods installation may be outdated or corrupted
                |
                |        To update CocoaPods execute 'sudo gem install cocoapods'
-               |        For more information, refer to the documentation: https://kotl.in/uj7jmy
+               |        For more information, refer to the documentation: https://jb.gg/zk5w2l
                |
             """.trimMargin()
         } else {
