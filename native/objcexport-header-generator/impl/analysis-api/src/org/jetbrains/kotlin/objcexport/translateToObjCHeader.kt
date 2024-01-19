@@ -33,7 +33,6 @@ fun translateToObjCHeader(files: List<KtFile>): ObjCHeader {
         classForwardDeclarations = classForwardDeclarations,
         protocolForwardDeclarations = protocolForwardDeclarations,
         additionalImports = emptyList(),
-        exportKDoc = configuration.exportKDoc
     )
 }
 

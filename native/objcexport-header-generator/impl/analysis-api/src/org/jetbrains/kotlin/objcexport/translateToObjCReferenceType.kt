@@ -55,7 +55,7 @@ private fun KtType.mapToReferenceTypeIgnoringNullability(): ObjCNonNullReference
         }
 
         val typeName = typesMap[classId]
-            ?: throw IllegalStateException("Unsupported mapping type for $this")
+            ?: classId!!.shortClassName.asString().getObjCKotlinStdlibClassOrProtocolName().objCName //throw IllegalStateException("Unsupported mapping type for $this")
 
         ObjCClassType(typeName)
     }

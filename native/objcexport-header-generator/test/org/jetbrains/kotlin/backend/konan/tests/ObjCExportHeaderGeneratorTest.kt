@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.backend.konan.tests
 
+import org.jetbrains.kotlin.backend.konan.testUtils.HeaderGenerator
 import org.jetbrains.kotlin.backend.konan.testUtils.headersTestDataDir
 import org.jetbrains.kotlin.test.KotlinTestUtils
 import org.junit.jupiter.api.Test
@@ -145,13 +146,9 @@ class ObjCExportHeaderGeneratorTest(val generator: HeaderGenerator) {
         doTest(headersTestDataDir.resolve("dispatchAndExtensionReceiverWithMustBeDocumentedAnnotation"))
     }
 
-    fun interface HeaderGenerator {
-        fun generateHeaders(root: File): String
-    }
-
     private fun doTest(root: File) {
         if (!root.isDirectory) fail("Expected ${root.absolutePath} to be directory")
-        val generatedHeaders = generator.generateHeaders(root)
+        val generatedHeaders = generator.generateHeaders(root).toString()
         KotlinTestUtils.assertEqualsToFile(root.resolve("!${root.nameWithoutExtension}.h"), generatedHeaders)
     }
 }

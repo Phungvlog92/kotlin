@@ -9,7 +9,6 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.util.Disposer
 import org.jetbrains.kotlin.backend.konan.UnitSuspendFunctionObjCExport
 import org.jetbrains.kotlin.backend.konan.objcexport.*
-import org.jetbrains.kotlin.backend.konan.tests.ObjCExportHeaderGeneratorTest
 import org.jetbrains.kotlin.builtins.DefaultBuiltIns
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
@@ -28,7 +27,7 @@ class Fe10HeaderGeneratorExtension : ParameterResolver, AfterEachCallback {
     }
 
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
-        return parameterContext.parameter.type == ObjCExportHeaderGeneratorTest.HeaderGenerator::class.java
+        return parameterContext.parameter.type == HeaderGenerator::class.java
     }
 
     override fun resolveParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Any {
@@ -43,12 +42,11 @@ class Fe10HeaderGeneratorExtension : ParameterResolver, AfterEachCallback {
     }
 }
 
-private class Fe10HeaderGeneratorImpl(private val disposable: Disposable) :
-    ObjCExportHeaderGeneratorTest.HeaderGenerator {
-    override fun generateHeaders(root: File): String {
+private class Fe10HeaderGeneratorImpl(private val disposable: Disposable) : HeaderGenerator {
+    override fun generateHeaders(root: File): ObjCHeader {
         val headerGenerator = createObjCExportHeaderGenerator(disposable, root)
         headerGenerator.translateModuleDeclarations()
-        return headerGenerator.build().joinToString(System.lineSeparator())
+        return headerGenerator.buildHeader()
     }
 
     private fun createObjCExportHeaderGenerator(disposable: Disposable, root: File): ObjCExportHeaderGenerator {
