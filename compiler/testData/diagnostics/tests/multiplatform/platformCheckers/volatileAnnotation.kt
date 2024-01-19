@@ -1,4 +1,6 @@
 // WITH_STDLIB
+// MUTE_LL_FIR: platform checkers in AA are run in common session by design
+
 // MODULE: common
 import kotlin.reflect.KProperty
 @Target(AnnotationTarget.FIELD)

@@ -1,4 +1,5 @@
 // LANGUAGE: +ContextReceivers
+// MUTE_LL_FIR: platform checkers in AA are run in common session by design
 
 // MODULE: common
 expect interface A
