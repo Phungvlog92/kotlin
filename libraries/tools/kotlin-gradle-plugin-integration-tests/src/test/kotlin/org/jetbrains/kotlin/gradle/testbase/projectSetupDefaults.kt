@@ -89,6 +89,9 @@ internal fun getGroovyDependencyManagementBlock(
                     artifact()
                 }
             }
+            maven {
+                url "https://packages.jetbrains.team/maven/p/ij/intellij-dependencies/"
+            }
             ${additionalDependencyRepositories.map { repo -> "maven{ url = \"$repo\" }" }.joinToString("\n")}
             ${localRepo?.absolutePathString()?.let { repo -> "maven{ url = \"${repo.replace("\\", "\\\\")}\" }" } ?: ""}
         }
@@ -176,6 +179,9 @@ internal fun getKotlinDependencyManagementBlock(
                 metadataSources {
                     artifact()
                 }
+            }
+            maven {
+                url = uri("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies/")
             }
             ${additionalDependencyRepositories.map { repo -> "maven{ url = uri(\"$repo\") }" }.joinToString("\n")}
             ${localRepo?.absolutePathString()?.let { repo -> "maven{ url = uri(\"${repo.replace("\\", "\\\\")}\") }" } ?: ""}
