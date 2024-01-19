@@ -5,23 +5,22 @@
 
 package kotlin.test
 
-/**
- * Overrides current framework adapter with a provided instance of [FrameworkAdapter]. Use in order to support custom test frameworks.
- *
- * If this function is not called, the test framework will be detected automatically.
- *
- */
-internal fun setAdapter(adapter: FrameworkAdapter) {
-    currentAdapter = adapter
-}
-
-internal var currentAdapter: FrameworkAdapter? = null
-
 private fun isJasmine(): Boolean =
     js("typeof describe === 'function' && typeof it === 'function'")
 
-internal actual fun adapter(): FrameworkAdapter {
-    val result = currentAdapter ?: if (isJasmine()) JasmineLikeAdapter() else TeamcityAdapterWithPromiseSupport()
-    currentAdapter = result
-    return result
+@JsName("kotlinTest")
+internal external val kotlinTestNamespace: ExternalKotlinTestNamespace
+
+internal external interface ExternalKotlinTestNamespace : JsAny {
+    public val adapterTransformer: ((ExternalFrameworkAdapter) -> ExternalFrameworkAdapter)?
 }
+
+private val adapter: FrameworkAdapter by lazy {
+    if (!isJasmine()) return@lazy TeamcityAdapterWithPromiseSupport()
+
+    val jasmineLikeAdapter = JasmineLikeAdapter()
+    val transformer = kotlinTestNamespace.adapterTransformer ?: return@lazy jasmineLikeAdapter
+    transformer(jasmineLikeAdapter.externalize()).internalize()
+}
+
+internal actual fun adapter(): FrameworkAdapter = adapter
