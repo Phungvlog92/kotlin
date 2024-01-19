@@ -348,7 +348,7 @@ internal constructor(
         replaceWith = ReplaceWith("kotlinNativeProvider.compilerDirectory")
     )
     @get:Internal
-    val konanHome: Provider<String> = project.provider { kotlinNativeProvider.get().compilerDirectory.get().asFile.absolutePath }
+    val konanHome: Provider<String> = project.provider { kotlinNativeProvider.get().bundleDirectory.get().asFile.absolutePath }
 
     @get:Nested
     override val multiplatformStructure: K2MultiplatformStructure = objectFactory.newInstance()
@@ -418,12 +418,11 @@ internal constructor(
     override val additionalCompilerOptions: Provider<Collection<String>>
         get() = compilerOptions.freeCompilerArgs as Provider<Collection<String>>
 
-    private val runnerSettings
-        get() = KotlinNativeCompilerRunner.Settings.of(
-            kotlinNativeProvider.get().compilerDirectory.getFile().absolutePath,
-            kotlinNativeProvider.get().konanDataDir.orNull,
-            project
-        )
+    private val runnerSettings = KotlinNativeCompilerRunner.Settings.of(
+        kotlinNativeProvider.get().bundleDirectory.getFile().absolutePath,
+        kotlinNativeProvider.get().konanDataDir.orNull,
+        project
+    )
     // endregion.
 
     @Suppress("DeprecatedCallableAddReplaceWith")
@@ -1107,12 +1106,11 @@ abstract class CInteropProcess @Inject internal constructor(params: Params) :
         replaceWith = ReplaceWith("kotlinNativeProvider.compilerDirectory")
     )
     @get:Internal
-    val konanHome: Provider<String> = project.provider { kotlinNativeProvider.get().compilerDirectory.get().asFile.absolutePath }
+    val konanHome: Provider<String> = project.provider { kotlinNativeProvider.get().bundleDirectory.get().asFile.absolutePath }
 
 
-    private val runnerSettings
-        get() = KotlinNativeToolRunner.Settings.of(
-            kotlinNativeProvider.get().compilerDirectory.getFile().absolutePath,
+    private val runnerSettings= KotlinNativeToolRunner.Settings.of(
+            kotlinNativeProvider.get().bundleDirectory.getFile().absolutePath,
             kotlinNativeProvider.get().konanDataDir.orNull,
             project
         )

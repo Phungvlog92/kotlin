@@ -26,7 +26,6 @@ import org.jetbrains.kotlin.build.report.metrics.GradleBuildTime
 import org.jetbrains.kotlin.compilerRunner.*
 import org.jetbrains.kotlin.compilerRunner.KotlinNativeCompilerRunner
 import org.jetbrains.kotlin.compilerRunner.addBuildMetricsForTaskAction
-import org.jetbrains.kotlin.compilerRunner.konanDataDir
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.internal.ensureParentDirsCreated
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider
@@ -188,11 +187,10 @@ abstract class KotlinNativeLinkArtifactTask @Inject constructor(
         replaceWith = ReplaceWith("kotlinNativeProvider.compilerDirectory")
     )
     @get:Internal
-    val konanHome: Provider<String> = project.provider { kotlinNativeProvider.get().compilerDirectory.get().asFile.absolutePath }
+    val konanHome: Provider<String> = project.provider { kotlinNativeProvider.get().bundleDirectory.get().asFile.absolutePath }
 
-    private val runnerSettings
-        get() = KotlinNativeCompilerRunner.Settings.of(
-            kotlinNativeProvider.get().compilerDirectory.getFile().absolutePath,
+    private val runnerSettings = KotlinNativeCompilerRunner.Settings.of(
+            kotlinNativeProvider.get().bundleDirectory.getFile().absolutePath,
             kotlinNativeProvider.get().konanDataDir.orNull,
             project
         )

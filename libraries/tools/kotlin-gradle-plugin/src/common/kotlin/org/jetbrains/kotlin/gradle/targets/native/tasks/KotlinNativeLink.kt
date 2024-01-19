@@ -200,7 +200,7 @@ constructor(
 
     private val cacheBuilderSettings by lazy {
         CacheBuilder.Settings.createWithProject(
-            kotlinNativeProvider.get().compilerDirectory.getFile().absolutePath,
+            kotlinNativeProvider.get().bundleDirectory.getFile().absolutePath,
             kotlinNativeProvider.get().konanDataDir.orNull,
             project,
             binary,
@@ -365,11 +365,10 @@ constructor(
         replaceWith = ReplaceWith("kotlinNativeProvider.compilerDirectory")
     )
     @get:Internal
-    val konanHome: Provider<String> = project.provider { kotlinNativeProvider.get().compilerDirectory.get().asFile.absolutePath }
+    val konanHome: Provider<String> = project.provider { kotlinNativeProvider.get().bundleDirectory.get().asFile.absolutePath }
 
-    private val runnerSettings
-        get() = KotlinNativeCompilerRunner.Settings.of(
-            kotlinNativeProvider.get().compilerDirectory.getFile().absolutePath,
+    private val runnerSettings = KotlinNativeCompilerRunner.Settings.of(
+            kotlinNativeProvider.get().bundleDirectory.getFile().absolutePath,
             kotlinNativeProvider.get().konanDataDir.orNull,
             project
         )

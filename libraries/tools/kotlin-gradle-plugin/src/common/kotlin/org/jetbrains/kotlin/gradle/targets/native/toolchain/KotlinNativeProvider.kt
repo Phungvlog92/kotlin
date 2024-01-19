@@ -15,7 +15,7 @@ import org.gradle.api.tasks.Internal
 import org.jetbrains.kotlin.compilerRunner.konanDataDir
 import org.jetbrains.kotlin.compilerRunner.konanHome
 import org.jetbrains.kotlin.compilerRunner.kotlinNativeToolchainEnabled
-import org.jetbrains.kotlin.gradle.plugin.KOTLIN_NATIVE_COMPILER_CONFIGURATION_NAME
+import org.jetbrains.kotlin.gradle.plugin.KOTLIN_NATIVE_BUNDLE_CONFIGURATION_NAME
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.Companion.kotlinPropertiesProvider
 import org.jetbrains.kotlin.gradle.targets.native.internal.NativeDistributionTypeProvider
 import org.jetbrains.kotlin.gradle.targets.native.internal.PlatformLibrariesGenerator
@@ -34,19 +34,19 @@ internal class KotlinNativeProvider(project: Project, konanTarget: KonanTarget) 
     val konanDataDir: Provider<String?> = project.provider { project.konanDataDir }
 
     @get:Internal
-    val compilerDirectory: DirectoryProperty = project.objects.directoryProperty().fileProvider(
+    val bundleDirectory: DirectoryProperty = project.objects.directoryProperty().fileProvider(
         project.provider {
             project.konanHome
         }
     )
 
     @get:Internal
-    val reinstallCompiler: Property<Boolean> = project.objects.property(project.kotlinPropertiesProvider.nativeReinstall)
+    val reinstallBundle: Property<Boolean> = project.objects.property(project.kotlinPropertiesProvider.nativeReinstall)
 
     @get:Input
-    internal val kotlinNativeCompilerVersion: Provider<String> = compilerDirectory.zip(reinstallCompiler) { compilerDir, reinstallFlag ->
+    internal val kotlinNativeBundleVersion: Provider<String> = bundleDirectory.zip(reinstallBundle) { bundleDir, reinstallFlag ->
         val kotlinNativeVersion = NativeCompilerDownloader.getDependencyNameWithOsAndVersion(project)
-        if (project.kotlinNativeToolchainEnabled && (reinstallFlag || !compilerDir.asFile.exists())) {
+        if (project.kotlinNativeToolchainEnabled && (reinstallFlag || !bundleDir.asFile.exists())) {
             val kotlinNativeCompilerExtractedFolder =
                 kotlinNativeCompilerConfiguration
                     .singleOrNull()
@@ -56,8 +56,8 @@ internal class KotlinNativeProvider(project: Project, konanTarget: KonanTarget) 
                                 "Please, make sure that you've declared the repository, which contains $kotlinNativeVersion."
                     )
 
-            project.prepareKotlinNativeCompiler(
-                compilerDir.asFile,
+            project.prepareKotlinNativeBundle(
+                bundleDir.asFile,
                 reinstallFlag,
                 kotlinNativeCompilerExtractedFolder,
                 konanTarget
@@ -70,15 +70,15 @@ internal class KotlinNativeProvider(project: Project, konanTarget: KonanTarget) 
         // without enabled there is no configuration with this name, so we should return empty provider to support configuraiton cache
         if (project.kotlinNativeToolchainEnabled) {
             project.configurations.named(
-                KOTLIN_NATIVE_COMPILER_CONFIGURATION_NAME
+                KOTLIN_NATIVE_BUNDLE_CONFIGURATION_NAME
             )
         } else {
             null
         }
     }
 
-    private fun Project.prepareKotlinNativeCompiler(
-        compilerDir: File,
+    private fun Project.prepareKotlinNativeBundle(
+        bundleDir: File,
         reinstallFlag: Boolean,
         gradleCachesKotlinNativeDir: File,
         konanTarget: KonanTarget,
@@ -88,13 +88,13 @@ internal class KotlinNativeProvider(project: Project, konanTarget: KonanTarget) 
             NativeCompilerDownloader.getCompilerDirectory(project).deleteRecursively()
         }
 
-        if (!compilerDir.exists()) {
-            logger.info("Moving Kotlin/Native compiler from tmp directory $gradleCachesKotlinNativeDir to ${compilerDir.absolutePath}")
+        if (!bundleDir.exists()) {
+            logger.info("Moving Kotlin/Native bundle from tmp directory $gradleCachesKotlinNativeDir to ${bundleDir.absolutePath}")
             copy {
                 it.from(gradleCachesKotlinNativeDir)
-                it.into(compilerDir)
+                it.into(bundleDir)
             }
-            logger.info("Moved Kotlin/Native compiler from $gradleCachesKotlinNativeDir to ${compilerDir.absolutePath}")
+            logger.info("Moved Kotlin/Native bundle from $gradleCachesKotlinNativeDir to ${bundleDir.absolutePath}")
         }
 
         setupKotlinNativeDependencies(konanTarget)

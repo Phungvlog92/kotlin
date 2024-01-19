@@ -23,10 +23,7 @@ private const val EXTRACTED_ARCHIVE_RELATED_PATH = "extracted"
 /**
  * An implementation of a gradle [TransformAction] to unzip configurations' artifacts in `tar.gz` and `zip` formats.
  */
-@DisableCachingByDefault(
-    because = "Plugin authors should not put into the remote build cache operations that does only I/O." +
-            "Such I/O operation locally in the most cases faster than downloading artifacts via network."
-)
+@DisableCachingByDefault(because = "Does only I/O")
 abstract class UnzipTransformationAction : TransformAction<TransformParameters.None> {
 
     @get:Inject
@@ -49,9 +46,8 @@ abstract class UnzipTransformationAction : TransformAction<TransformParameters.N
             it.from(
                 when {
                     archive.name.endsWith("zip") -> archiveOperations.zipTree(archive)
-                    else -> {
-                        archiveOperations.tarTree(archive)
-                    }
+                    archive.name.endsWith(".tar.gz") -> archiveOperations.tarTree(archive)
+                    else -> error("Unsupported format for unzipping $archive")
                 }
             )
             it.into(outputDir)

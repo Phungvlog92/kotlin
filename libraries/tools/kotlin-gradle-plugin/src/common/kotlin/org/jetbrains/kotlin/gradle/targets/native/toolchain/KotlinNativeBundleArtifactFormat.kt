@@ -11,16 +11,16 @@ import org.gradle.api.attributes.AttributesSchema
 
 /**
  * This class provides functionality for setting up attributes matching strategy and
- * transformation for a Kotlin Native Compiler configurations.
+ * transformation for a Kotlin Native Bundle configurations.
  *
- * @property attribute The attribute object representing the Kotlin Native compiler type.
+ * @property attribute The attribute object representing the Kotlin Native Bundle type.
  */
-internal object KotlinNativeCompilerAttribute {
+internal object KotlinNativeBundleArtifactFormat {
 
-    val attribute: Attribute<KotlinNativeCompilerArtifactsTypes> =
-        Attribute.of("kotlin.native.compiler.type", KotlinNativeCompilerArtifactsTypes::class.java)
+    val attribute: Attribute<KotlinNativeBundleArtifactsTypes> =
+        Attribute.of("kotlin.native.bundle.type", KotlinNativeBundleArtifactsTypes::class.java)
 
-    internal enum class KotlinNativeCompilerArtifactsTypes {
+    internal enum class KotlinNativeBundleArtifactsTypes {
         ARCHIVE,
         DIRECTORY
     }
@@ -41,16 +41,16 @@ internal object KotlinNativeCompilerAttribute {
      */
     internal fun setupTransform(project: Project) {
         project.dependencies.artifactTypes.maybeCreate("tar.gz").also { artifactType ->
-            artifactType.attributes.attribute(attribute, KotlinNativeCompilerArtifactsTypes.ARCHIVE)
+            artifactType.attributes.attribute(attribute, KotlinNativeBundleArtifactsTypes.ARCHIVE)
         }
 
         project.dependencies.artifactTypes.maybeCreate("zip").also { artifactType ->
-            artifactType.attributes.attribute(attribute, KotlinNativeCompilerArtifactsTypes.ARCHIVE)
+            artifactType.attributes.attribute(attribute, KotlinNativeBundleArtifactsTypes.ARCHIVE)
         }
 
         project.dependencies.registerTransform(UnzipTransformationAction::class.java) { transform ->
-            transform.from.attribute(attribute, KotlinNativeCompilerArtifactsTypes.ARCHIVE)
-            transform.to.attribute(attribute, KotlinNativeCompilerArtifactsTypes.DIRECTORY)
+            transform.from.attribute(attribute, KotlinNativeBundleArtifactsTypes.ARCHIVE)
+            transform.to.attribute(attribute, KotlinNativeBundleArtifactsTypes.DIRECTORY)
         }
     }
 }

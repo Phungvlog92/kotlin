@@ -18,9 +18,8 @@ private const val STABLE_VERSION = "1.9.20"
 class KotlinNativeToolchainTest {
 
     @Test
-    fun `check that kotlin native compiler stable version has benn resolved correctly`() {
+    fun `check that kotlin native compiler stable version has been resolved correctly`() {
         val project = buildProjectWithMPP {
-            project.multiplatformExtension.applyDefaultHierarchyTemplate()
             project.multiplatformExtension.linuxX64()
             project.extraProperties.set("kotlin.native.version", STABLE_VERSION)
             project.extraProperties.set("kotlin.native.distribution.downloadFromMaven", true)
@@ -32,7 +31,7 @@ class KotlinNativeToolchainTest {
 
         assertEquals(
             "kotlin-native-prebuilt-${HostManager.platformName()}-$STABLE_VERSION",
-            compileTask.kotlinNativeProvider.get().kotlinNativeCompilerVersion.get()
+            compileTask.kotlinNativeProvider.get().kotlinNativeBundleVersion.get()
         )
     }
 }
