@@ -79,7 +79,7 @@ data class BuildOptions(
         val incrementalJs: Boolean? = null,
         val incrementalJsKlib: Boolean? = null,
         val incrementalJsIr: Boolean? = null,
-        val yarn: Boolean = false,
+        val yarn: Boolean? = null,
     )
 
     data class NativeOptions(
@@ -163,7 +163,7 @@ data class BuildOptions(
             jsOptions.incrementalJs?.let { arguments.add("-Pkotlin.incremental.js=$it") }
             jsOptions.incrementalJsKlib?.let { arguments.add("-Pkotlin.incremental.js.klib=$it") }
             jsOptions.incrementalJsIr?.let { arguments.add("-Pkotlin.incremental.js.ir=$it") }
-            jsOptions.yarn.let { arguments.add("-Pkotlin.js.yarn=$it") }
+            jsOptions.yarn?.let { arguments.add("-Pkotlin.js.yarn=$it") }
         }
 
         if (androidVersion != null) {
