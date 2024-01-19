@@ -22,10 +22,7 @@ import org.jetbrains.kotlin.fir.analysis.checkers.unsubstitutedScope
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.fir.analysis.overridesBackwardCompatibilityHelper
 import org.jetbrains.kotlin.fir.declarations.*
-import org.jetbrains.kotlin.fir.declarations.utils.isFinal
-import org.jetbrains.kotlin.fir.declarations.utils.isOverride
-import org.jetbrains.kotlin.fir.declarations.utils.modality
-import org.jetbrains.kotlin.fir.declarations.utils.visibility
+import org.jetbrains.kotlin.fir.declarations.utils.*
 import org.jetbrains.kotlin.fir.resolve.substitution.substitutorByMap
 import org.jetbrains.kotlin.fir.resolve.toSymbol
 import org.jetbrains.kotlin.fir.scopes.FirTypeScope
@@ -180,6 +177,14 @@ object FirOverrideChecker : FirAbstractOverrideChecker() {
             )
         } else {
             for ((overridden, overriddenVisibility) in visibilities) {
+                if (visibility == Visibilities.Unknown) {
+                    // MANY_*_NOT_IMPLEMENTED implies CANNOT_INFER_VISIBILITY as per KT-63741
+                    val isManyNotImplementedDiagnosticReported = overriddenSymbols.count { !it.isAbstract } >= 2
+                    if (!isManyNotImplementedDiagnosticReported) {
+                        reporter.reportOn(source, FirErrors.CANNOT_INFER_VISIBILITY, this, context)
+                    }
+                    break
+                }
                 val compare = Visibilities.compare(visibility, overriddenVisibility)
                 if (compare == null) {
                     reporter.reportCannotChangeAccessPrivilege(this, overridden, context)

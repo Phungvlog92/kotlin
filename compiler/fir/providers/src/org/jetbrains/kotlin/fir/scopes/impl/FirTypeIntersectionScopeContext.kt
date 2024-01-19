@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.fir.*
 import org.jetbrains.kotlin.fir.caches.*
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
 import org.jetbrains.kotlin.fir.declarations.FirMemberDeclaration
+import org.jetbrains.kotlin.fir.declarations.FirResolvedDeclarationStatus
 import org.jetbrains.kotlin.fir.declarations.FirVariable
 import org.jetbrains.kotlin.fir.declarations.utils.isExpect
 import org.jetbrains.kotlin.fir.declarations.utils.modality
@@ -347,17 +348,44 @@ class FirTypeIntersectionScopeContext(
 
     private fun <D : FirCallableSymbol<*>> chooseIntersectionVisibility(
         extractedOverrides: Collection<MemberWithBaseScope<D>>
-    ): Visibility {
+    ): Visibility = chooseIntersectionVisibility2(extractedOverrides) ?: Visibilities.Unknown
+
+    private fun <D : FirCallableSymbol<*>> chooseIntersectionVisibility2(
+        extractedOverrides: Collection<MemberWithBaseScope<D>>
+    ): Visibility? {
+        val nonAbstract = extractedOverrides.filterNot {
+            require(it.member.rawStatus is FirResolvedDeclarationStatus) {
+                "We expect that to be true already, but we can't yet call resolvedStatus"
+            }
+            it.member.rawStatus.modality == Modality.ABSTRACT
+        }
+        val allAreAbstract = nonAbstract.isEmpty()
+
+        if (allAreAbstract) {
+            return findMaxVisibilityOrNull(extractedOverrides)
+        }
+
+        if (nonAbstract.size >= 2) {
+            return null
+        }
+
+        return nonAbstract.single().member.rawStatus.visibility
+    }
+
+    private fun <D : FirCallableSymbol<*>> findMaxVisibilityOrNull(
+        extractedOverrides: Collection<MemberWithBaseScope<D>>
+    ): Visibility? {
         var maxVisibility: Visibility = Visibilities.Private
+
         for ((override) in extractedOverrides) {
             val visibility = (override.fir as FirMemberDeclaration).visibility
-            // TODO: There is more complex logic at org.jetbrains.kotlin.resolve.OverridingUtil.resolveUnknownVisibilityForMember
-            // TODO: and org.jetbrains.kotlin.resolve.OverridingUtil.findMaxVisibility
-            val compare = Visibilities.compare(visibility, maxVisibility) ?: return Visibilities.DEFAULT_VISIBILITY
+            val compare = Visibilities.compare(visibility, maxVisibility) ?: return null
+
             if (compare > 0) {
                 maxVisibility = visibility
             }
         }
+
         return maxVisibility
     }
 
