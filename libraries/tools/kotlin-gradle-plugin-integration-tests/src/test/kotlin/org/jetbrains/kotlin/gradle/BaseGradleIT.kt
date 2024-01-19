@@ -272,7 +272,7 @@ abstract class BaseGradleIT {
         val useParsableDiagnosticsFormatting: Boolean = true,
         val showDiagnosticsStacktrace: Boolean? = false, // false by default to not clutter the testdata + stacktraces change often
         val stacktraceMode: String? = StacktraceOption.FULL_STACKTRACE_LONG_OPTION,
-        val konanDataDir: Path = konanDir,
+        val konanDataDir: Path? = konanDir,
         // TODO(Dmitrii Krasnov): we can remove this, when downloading konan from maven local will be possible KT-63198
         val distributionDownloadFromMaven: Boolean? = true,
     ) {
@@ -1002,7 +1002,9 @@ abstract class BaseGradleIT {
                 add("-Pkotlin.internal.suppressGradlePluginErrors=PreHMPPFlagsError")
             }
 
-            add("-Pkonan.data.dir=${options.konanDataDir.absolutePathString().normalize()}")
+            if (options.konanDataDir != null) {
+                add("-Pkonan.data.dir=${options.konanDataDir.absolutePathString().normalize()}")
+            }
 
             options.distributionDownloadFromMaven?.let {
                 add("-Pkotlin.native.distribution.downloadFromMaven=${it}")

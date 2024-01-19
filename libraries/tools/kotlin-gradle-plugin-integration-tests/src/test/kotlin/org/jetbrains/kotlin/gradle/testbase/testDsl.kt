@@ -478,7 +478,7 @@ private fun TestProject.withBuildSummary(
         throw t
     }
 }
-
+//
 /**
  * This property is configured reade konan from specific directory, which in teamcity will be filled with k/n built from master.
  * NOTE: On changing test konan dir location update related location in kotlin-teamcity-build repository
@@ -487,9 +487,7 @@ val konanDir
     get() =
         System.getProperty("konanDataDirForIntegrationTests")?.let {
             Paths.get(it)
-        } ?: Paths.get(".")
-            .resolve("../../../.kotlin")
-            .resolve("konan-for-gradle-tests")
+        }
 
 /**
  * On changing test kit dir location update related location in 'cleanTestKitCache' task.
