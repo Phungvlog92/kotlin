@@ -20,7 +20,7 @@ idea {
 }
 
 kotlin {
-    js(IR) {
+    js {
         nodejs {
             testTask {
                 enabled = false
