@@ -54,9 +54,6 @@ object IrObjCOverridabilityCondition : IrExternalOverridabilityCondition {
         return IrExternalOverridabilityCondition.Result.UNKNOWN
     }
 
-    private fun IrOverridableMember.isExternalObjCClassProperty() = this is IrProperty &&
-            (this.parent as? IrClass)?.isExternalObjCClass() == true
-
     private fun parameterNamesMatch(first: IrFunction, second: IrFunction): Boolean {
         // The original Objective-C method selector is represented as
         // function name and parameter names (except first).
