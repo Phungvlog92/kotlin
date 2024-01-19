@@ -8,9 +8,11 @@ package org.jetbrains.kotlin.fir.declarations
 import org.jetbrains.kotlin.fir.FirAnnotationContainer
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.expressions.*
+import org.jetbrains.kotlin.fir.expressions.builder.buildReturnExpression
 import org.jetbrains.kotlin.fir.references.FirErrorNamedReference
 import org.jetbrains.kotlin.fir.references.FirResolvedNamedReference
 import org.jetbrains.kotlin.fir.references.toResolvedCallableSymbol
+import org.jetbrains.kotlin.fir.references.toResolvedEnumEntrySymbol
 import org.jetbrains.kotlin.fir.resolve.fullyExpandedType
 import org.jetbrains.kotlin.fir.resolve.toSymbol
 import org.jetbrains.kotlin.fir.symbols.ConeClassLikeLookupTag
@@ -44,18 +46,6 @@ fun FirAnnotation.toAnnotationClassLikeSymbol(session: FirSession): FirClassLike
 fun FirAnnotation.toAnnotationClass(session: FirSession): FirRegularClass? =
     toAnnotationClassLikeSymbol(session)?.fir as? FirRegularClass
 
-private val FirExpression.callableNameOfMetaAnnotationArgument: Name?
-    get() = when (this) {
-        is FirQualifiedAccessExpression -> {
-            val callableSymbol = calleeReference.toResolvedCallableSymbol()
-            callableSymbol?.callableId?.callableName
-        }
-        is FirEnumEntryDeserializedAccessExpression -> {
-            enumEntryName
-        }
-        else -> null
-    }
-
 private val sourceName = Name.identifier("SOURCE")
 
 fun List<FirAnnotation>.nonSourceAnnotations(session: FirSession): List<FirAnnotation> =
@@ -64,7 +54,7 @@ fun List<FirAnnotation>.nonSourceAnnotations(session: FirSession): List<FirAnnot
         firAnnotationClass != null && firAnnotationClass.annotations.none { meta ->
             meta.toAnnotationClassId(session) == StandardClassIds.Annotations.Retention &&
                     meta.findArgumentByName(StandardClassIds.Annotations.ParameterNames.retentionValue)
-                        ?.callableNameOfMetaAnnotationArgument == sourceName
+                        ?.extractEnumValueArgumentInfo()?.enumEntryName == sourceName
         }
     }
 
@@ -186,4 +176,17 @@ private val LOW_PRIORITY_IN_OVERLOAD_RESOLUTION_CLASS_ID: ClassId =
 fun hasLowPriorityAnnotation(annotations: List<FirAnnotation>) = annotations.any {
     val lookupTag = it.annotationTypeRef.coneTypeSafe<ConeClassLikeType>()?.lookupTag ?: return@any false
     lookupTag.classId == LOW_PRIORITY_IN_OVERLOAD_RESOLUTION_CLASS_ID
+}
+
+data class EnumValueArgumentInfo(val enumClassId: ClassId, val enumEntryName: Name)
+
+fun FirExpression.extractEnumValueArgumentInfo(): EnumValueArgumentInfo? {
+    return when (this) {
+        is FirPropertyAccessExpression -> {
+            val entrySymbol = calleeReference.toResolvedEnumEntrySymbol() ?: return null
+            EnumValueArgumentInfo(entrySymbol.callableId.classId!!, entrySymbol.callableId.callableName)
+        }
+        is FirEnumEntryDeserializedAccessExpression -> EnumValueArgumentInfo(enumClassId, enumEntryName)
+        else -> null
+    }
 }

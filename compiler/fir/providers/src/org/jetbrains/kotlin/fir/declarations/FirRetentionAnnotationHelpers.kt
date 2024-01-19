@@ -25,20 +25,9 @@ fun FirRegularClassSymbol.getRetention(session: FirSession): AnnotationRetention
 }
 
 fun FirAnnotation.getRetention(): AnnotationRetention? {
-    val enumId: ClassId
-    val entryName: Name
-    when (val enumAccess = findArgumentByName(StandardClassIds.Annotations.ParameterNames.retentionValue)) {
-        is FirQualifiedAccessExpression -> {
-            val callableId = enumAccess.calleeReference.toResolvedEnumEntrySymbol()?.callableId ?: return null
-            enumId = callableId.classId ?: return null
-            entryName = callableId.callableName
-        }
-        is FirEnumEntryDeserializedAccessExpression -> {
-            enumId = enumAccess.enumClassId
-            entryName = enumAccess.enumEntryName
-        }
-        else -> return null
-    }
+    val (enumId, entryName) = findArgumentByName(StandardClassIds.Annotations.ParameterNames.retentionValue)
+        ?.extractEnumValueArgumentInfo()
+        ?: return null
 
     if (enumId != StandardClassIds.AnnotationRetention) {
         return null

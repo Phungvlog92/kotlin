@@ -278,11 +278,7 @@ object FirOptInUsageBaseChecker {
 
         val levelArgument = experimental.findArgumentByName(LEVEL)
 
-        val levelName = when (val calleeReference = levelArgument?.toReference(session)) {
-            is FirErrorNamedReference -> null
-            is FirNamedReference -> calleeReference.name.asString()
-            else -> null
-        }
+        val levelName = levelArgument?.extractEnumValueArgumentInfo()?.enumEntryName?.asString()
 
         val severity = Experimentality.Severity.entries.firstOrNull { it.name == levelName } ?: Experimentality.DEFAULT_SEVERITY
         val message = (experimental.findArgumentByName(MESSAGE) as? FirConstExpression<*>)?.value as? String

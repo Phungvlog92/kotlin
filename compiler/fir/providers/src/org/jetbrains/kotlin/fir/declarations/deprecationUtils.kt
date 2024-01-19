@@ -246,11 +246,7 @@ private fun FirAnnotation.getDeprecationLevel(): DeprecationLevelValue? {
             ?: arguments.lastOrNull()
     } ?: return null
 
-    val targetName = when (argument) {
-        is FirQualifiedAccessExpression -> (argument.calleeReference as? FirNamedReference)?.name?.asString()
-        is FirEnumEntryDeserializedAccessExpression -> argument.enumEntryName.asString()
-        else -> null
-    } ?: return null
+    val targetName = argument.extractEnumValueArgumentInfo()?.enumEntryName?.asString() ?: return null
 
     return DeprecationLevelValue.values().find { it.name == targetName }
 }
