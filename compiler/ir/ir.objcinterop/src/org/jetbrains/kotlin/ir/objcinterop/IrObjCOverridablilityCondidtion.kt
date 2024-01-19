@@ -29,6 +29,7 @@ object IrObjCOverridabilityCondition : IrExternalOverridabilityCondition {
         subMember: IrOverridableMember
     ): IrExternalOverridabilityCondition.Result {
         if (superMember.name == subMember.name) { // Slow path:
+            // KT-57640: There's no necessity to implement platform-dependent overridability check for properties
             if (superMember is IrFunction && subMember is IrFunction) {
                 superMember.getExternalObjCMethodInfo()?.let { superInfo ->
                     val subInfo = subMember.getExternalObjCMethodInfo()
@@ -47,8 +48,6 @@ object IrObjCOverridabilityCondition : IrExternalOverridabilityCondition {
                         }
                     }
                 }
-            } else if (superMember.isExternalObjCClassProperty() && subMember.isExternalObjCClassProperty()) {
-                return IrExternalOverridabilityCondition.Result.OVERRIDABLE
             }
         }
 
